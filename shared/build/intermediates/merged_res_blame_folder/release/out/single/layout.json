@@ -1,0 +1,50 @@
+[
+    {
+        "merged": "com.example.mediaplayerdroid.shared-merged_res-6:/layout/notification_template_big_media_custom.xml",
+        "source": "com.example.mediaplayerdroid.shared-media-1.6.0-2:/layout/notification_template_big_media_custom.xml"
+    },
+    {
+        "merged": "com.example.mediaplayerdroid.shared-merged_res-6:/layout/notification_template_part_chronometer.xml",
+        "source": "com.example.mediaplayerdroid.shared-core-1.6.0-1:/layout/notification_template_part_chronometer.xml"
+    },
+    {
+        "merged": "com.example.mediaplayerdroid.shared-merged_res-6:/layout/notification_template_lines_media.xml",
+        "source": "com.example.mediaplayerdroid.shared-media-1.6.0-2:/layout/notification_template_lines_media.xml"
+    },
+    {
+        "merged": "com.example.mediaplayerdroid.shared-merged_res-6:/layout/notification_template_media_custom.xml",
+        "source": "com.example.mediaplayerdroid.shared-media-1.6.0-2:/layout/notification_template_media_custom.xml"
+    },
+    {
+        "merged": "com.example.mediaplayerdroid.shared-merged_res-6:/layout/notification_template_big_media.xml",
+        "source": "com.example.mediaplayerdroid.shared-media-1.6.0-2:/layout/notification_template_big_media.xml"
+    },
+    {
+        "merged": "com.example.mediaplayerdroid.shared-merged_res-6:/layout/notification_template_big_media_narrow_custom.xml",
+        "source": "com.example.mediaplayerdroid.shared-media-1.6.0-2:/layout/notification_template_big_media_narrow_custom.xml"
+    },
+    {
+        "merged": "com.example.mediaplayerdroid.shared-merged_res-6:/layout/notification_media_action.xml",
+        "source": "com.example.mediaplayerdroid.shared-media-1.6.0-2:/layout/notification_media_action.xml"
+    },
+    {
+        "merged": "com.example.mediaplayerdroid.shared-merged_res-6:/layout/notification_template_part_time.xml",
+        "source": "com.example.mediaplayerdroid.shared-core-1.6.0-1:/layout/notification_template_part_time.xml"
+    },
+    {
+        "merged": "com.example.mediaplayerdroid.shared-merged_res-6:/layout/custom_dialog.xml",
+        "source": "com.example.mediaplayerdroid.shared-core-1.6.0-1:/layout/custom_dialog.xml"
+    },
+    {
+        "merged": "com.example.mediaplayerdroid.shared-merged_res-6:/layout/notification_media_cancel_action.xml",
+        "source": "com.example.mediaplayerdroid.shared-media-1.6.0-2:/layout/notification_media_cancel_action.xml"
+    },
+    {
+        "merged": "com.example.mediaplayerdroid.shared-merged_res-6:/layout/notification_template_media.xml",
+        "source": "com.example.mediaplayerdroid.shared-media-1.6.0-2:/layout/notification_template_media.xml"
+    },
+    {
+        "merged": "com.example.mediaplayerdroid.shared-merged_res-6:/layout/notification_template_big_media_narrow.xml",
+        "source": "com.example.mediaplayerdroid.shared-media-1.6.0-2:/layout/notification_template_big_media_narrow.xml"
+    }
+]

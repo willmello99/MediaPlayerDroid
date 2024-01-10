@@ -1,0 +1,10 @@
+com.example.mediaplayerdroid.shared-annotation-experimental-1.1.0-0 C:\Users\William\.gradle\caches\transforms-3\66b90914f5261919524df0067891f70c\transformed\annotation-experimental-1.1.0\res
+com.example.mediaplayerdroid.shared-core-1.6.0-1 C:\Users\William\.gradle\caches\transforms-3\975b218d7b826ec088925f3d2f2dca16\transformed\core-1.6.0\res
+com.example.mediaplayerdroid.shared-media-1.6.0-2 C:\Users\William\.gradle\caches\transforms-3\d7713ca14ea11749134fb176e5add4fa\transformed\media-1.6.0\res
+com.example.mediaplayerdroid.shared-pngs-3 C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\build\generated\res\pngs\release
+com.example.mediaplayerdroid.shared-resValues-4 C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\build\generated\res\resValues\release
+com.example.mediaplayerdroid.shared-mergeReleaseResources-5 C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\build\intermediates\incremental\release\mergeReleaseResources\merged.dir
+com.example.mediaplayerdroid.shared-mergeReleaseResources-6 C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\build\intermediates\incremental\release\mergeReleaseResources\stripped.dir
+com.example.mediaplayerdroid.shared-merged_res-7 C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\build\intermediates\merged_res\release
+com.example.mediaplayerdroid.shared-main-8 C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\res
+com.example.mediaplayerdroid.shared-release-9 C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\release\res
