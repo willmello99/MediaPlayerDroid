@@ -8,4 +8,5 @@ class Settings: Serializable {
     var isAsc: Boolean = true
     var isDesc: Boolean = false
     var isRepeat: Boolean = false
+    var repeatAlreadyPlayedSongs = true
 }

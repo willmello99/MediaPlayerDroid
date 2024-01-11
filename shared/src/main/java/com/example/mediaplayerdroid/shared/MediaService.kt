@@ -86,6 +86,8 @@ class MediaService : MediaBrowserServiceCompat(),
         const val MEDIA_RECENTS = "RECENTS"
         const val MEDIA_CONFIGURATIONS = "CONFIGURATIONS"
         const val MEDIA_PLAYBACK_MODE = "PLAYBACK_MODE"
+        const val MEDIA_REPEAT_ALREADY_PLAYED_SONGS = "REPEAT_ALREADY_PLAYED_SONGS"
+        const val MEDIA_REPEAT_ALREADY_VALUE = "REPEAT_ALREADY_VALUE"
         const val MEDIA_RECENTS_CLEAR = "RECENTS_CLEAR"
         const val MEDIA_LOG = "LOG"
         const val MEDIA_LOG_CLEAR = "LOG_CLEAR"
@@ -260,6 +262,7 @@ class MediaService : MediaBrowserServiceCompat(),
         clientUid: Int,
         rootHints: Bundle?
     ): BrowserRoot {
+        // Não tem esquema de permissões
         return BrowserRoot(MEDIA_ID_ROOT, null)
     }
 
@@ -486,6 +489,20 @@ class MediaService : MediaBrowserServiceCompat(),
                         .build(), MediaItem.FLAG_BROWSABLE
                 )
             )
+            val strRepeatAlreadyPlayedSongs = if (mainStruct.settings!!.repeatAlreadyPlayedSongs) {
+                "Sim"
+            } else {
+                "Não"
+            }
+            list.add(
+                MediaItem(
+                    MediaDescriptionCompat.Builder()
+                        .setMediaId(MEDIA_REPEAT_ALREADY_PLAYED_SONGS)
+                        .setTitle("Repetir músicas já tocadas")
+                        .setSubtitle(strRepeatAlreadyPlayedSongs)
+                        .build(), MediaItem.FLAG_BROWSABLE
+                )
+            )
             list.add(
                 MediaItem(
                     MediaDescriptionCompat.Builder()
@@ -567,6 +584,31 @@ class MediaService : MediaBrowserServiceCompat(),
             mainStruct.settings!!.isRepeat = contents[1] == MEDIA_PLAYBACK_ISREPEAT
             mainStruct.settings!!.isRandomAll = contents[1] == MEDIA_PLAYBACK_ISRANDOMALL
             mainStruct.settings!!.isRandomPlaylist = contents[1] == MEDIA_PLAYBACK_ISRANDOMPLAYLIST
+            result.sendResult(ArrayList())
+        } else if (parentId == MEDIA_REPEAT_ALREADY_PLAYED_SONGS) {
+            result.detach()
+            val list = ArrayList<MediaItem>()
+            val option = if (mainStruct.settings!!.repeatAlreadyPlayedSongs) {
+                MediaItem(
+                    MediaDescriptionCompat.Builder()
+                        .setMediaId("${MEDIA_REPEAT_ALREADY_PLAYED_SONGS}*&${MEDIA_REPEAT_ALREADY_VALUE}*&FALSE")
+                        .setTitle("Não")
+                        .build(), MediaItem.FLAG_BROWSABLE
+                )
+            } else {
+                MediaItem(
+                    MediaDescriptionCompat.Builder()
+                        .setMediaId("${MEDIA_REPEAT_ALREADY_PLAYED_SONGS}*&${MEDIA_REPEAT_ALREADY_VALUE}*&TRUE")
+                        .setTitle("Sim")
+                        .build(), MediaItem.FLAG_BROWSABLE
+                )
+            }
+            list.add(option)
+            result.sendResult(list)
+        } else if(parentId.contains(MEDIA_REPEAT_ALREADY_VALUE)){
+            result.detach()
+            val contents = parentId.split("*$")
+            mainStruct.settings!!.repeatAlreadyPlayedSongs = contents[2] == "TRUE"
             result.sendResult(ArrayList())
         } else if (parentId == MEDIA_RECENTS_CLEAR) {
             result.detach()
@@ -679,7 +721,7 @@ class MediaService : MediaBrowserServiceCompat(),
     fun play(){
         if(mediaPlayer != null){
             if(audioFocusRequest == null){
-                audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
                     .setAudioAttributes(audioAttributes!!)
                     .setAcceptsDelayedFocusGain(true)
                     .setWillPauseWhenDucked(true)
@@ -708,10 +750,6 @@ class MediaService : MediaBrowserServiceCompat(),
         if(mediaPlayer != null){
             mediaPlayer!!.pause()
             updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
-            if(audioFocusRequest != null){
-                audioManager.abandonAudioFocusRequest(audioFocusRequest!!)
-                audioFocusRequest = null
-            }
         }
     }
 
@@ -730,10 +768,6 @@ class MediaService : MediaBrowserServiceCompat(),
             mediaPlayer!!.pause()
             mediaPlayer!!.seekTo(0)
             updatePlaybackState(PlaybackStateCompat.STATE_STOPPED)
-            if(audioFocusRequest != null){
-                audioManager.abandonAudioFocusRequest(audioFocusRequest!!)
-                audioFocusRequest = null
-            }
         }
     }
 
@@ -778,7 +812,8 @@ class MediaService : MediaBrowserServiceCompat(),
         }else if(mainStruct.settings!!.isRandomAll){
             var counter = 0
             music = mainStruct.musics!![(0..< mainStruct.musics!!.size).random()]
-            while(music == musicActual){
+            while(music == musicActual ||
+                (!mainStruct.settings!!.repeatAlreadyPlayedSongs || findMusicRecent(music!!))){
                 counter++
                 music = mainStruct.musics!![(0..< mainStruct.musics!!.size).random()]
                 if(counter > 10){ // loop infinito
@@ -791,7 +826,8 @@ class MediaService : MediaBrowserServiceCompat(),
             if(!playlistActual.isNullOrEmpty()){
                 var counter = 0
                 music = playlistActual!![(0..< playlistActual!!.size).random()]
-                while(musicActual!! == music){
+                while(musicActual!! == music ||
+                    (!mainStruct.settings!!.repeatAlreadyPlayedSongs || findMusicRecent(music!!))){
                     counter++
                     music = playlistActual!![(0..< playlistActual!!.size).random()]
                     if(counter > 10){ // loop infinito
@@ -804,6 +840,15 @@ class MediaService : MediaBrowserServiceCompat(),
         if(music != null){
             start(music)
         }
+    }
+
+    private fun findMusicRecent(music: Music): Boolean{
+        for(musicRecent in mainStruct.recents!!){
+            if(musicRecent.fileName == music.fileName){
+                return true
+            }
+        }
+        return false
     }
 
     fun seekTo(position: Long){

@@ -47,7 +47,7 @@ class MainStruct private constructor(): Serializable {
         loadSettingsFromFile(directory)
     }
 
-    fun loadMusicsFromFile(directory: String){
+    private fun loadMusicsFromFile(directory: String){
         if(musics == null) { // Performance
             val fileMusics = File("$directory/$FILE_MUSICS")
             if (fileMusics.exists()) {
@@ -83,7 +83,7 @@ class MainStruct private constructor(): Serializable {
         }
     }
 
-    fun loadPlaylistsFromFile(directory: String){
+    private fun loadPlaylistsFromFile(directory: String){
         if(playlists == null) { // Performance
             val filePlaylists = File("$directory/$FILE_PLAYLISTS")
             if (filePlaylists.exists()) {
@@ -130,7 +130,7 @@ class MainStruct private constructor(): Serializable {
         }
     }
 
-    fun loadRecentsFromFile(directory: String){
+    private fun loadRecentsFromFile(directory: String){
         if(recents == null) { // Performance
             val fileRecents = File("$directory/$FILE_RECENTS")
             if (fileRecents.exists()) {
@@ -151,7 +151,7 @@ class MainStruct private constructor(): Serializable {
         }
     }
 
-    fun loadLogFromFile(directory: String){
+    private fun loadLogFromFile(directory: String){
         if(logs == null) { // Performance
             val fileLog = File("$directory/$FILE_LOG")
             if (fileLog.exists()) {
@@ -172,7 +172,7 @@ class MainStruct private constructor(): Serializable {
         }
     }
 
-    fun loadSettingsFromFile(directory: String){
+    private fun loadSettingsFromFile(directory: String){
         if(settings == null) {
             val fileSettings = File("$directory/$FILE_SETTINGS")
             if (fileSettings.exists()) {
@@ -203,7 +203,7 @@ class MainStruct private constructor(): Serializable {
         saveSettingsToFile(directory)
     }
 
-    fun saveMusicsToFile(directory: String){
+    private fun saveMusicsToFile(directory: String){
         val fos = FileOutputStream(File("$directory/$FILE_MUSICS"))
         val os = ObjectOutputStream(fos)
         os.writeObject(musics)
@@ -211,7 +211,7 @@ class MainStruct private constructor(): Serializable {
         fos.close()
     }
 
-    fun savePlaylistsToFile(directory: String){
+    private fun savePlaylistsToFile(directory: String){
         val fos = FileOutputStream(File("$directory/$FILE_PLAYLISTS"))
         val os = ObjectOutputStream(fos)
         os.writeObject(playlists)
@@ -227,7 +227,7 @@ class MainStruct private constructor(): Serializable {
         fos.close()
     }
 
-    fun saveLogToFile(directory: String){
+    private fun saveLogToFile(directory: String){
         val fos = FileOutputStream(File("$directory/$FILE_LOG"))
         val os = ObjectOutputStream(fos)
         os.writeObject(logs)
@@ -235,7 +235,7 @@ class MainStruct private constructor(): Serializable {
         fos.close()
     }
 
-    fun saveSettingsToFile(directory: String){
+    private fun saveSettingsToFile(directory: String){
         val fos = FileOutputStream(File("$directory/$FILE_SETTINGS"))
         val os = ObjectOutputStream(fos)
         os.writeObject(settings)
