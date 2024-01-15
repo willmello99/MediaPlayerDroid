@@ -32,7 +32,6 @@ import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
 import classes.MainStruct
 import classes.Music
-import classes.Playlist
 import classes.PlaylistMusic
 
 
@@ -92,7 +91,7 @@ class MediaService : MediaBrowserServiceCompat(),
     companion object {
         private const val MEDIA_ID_ROOT = "ROOT"
         private const val MEDIA_PLAYLISTS = "PLAYLISTS"
-        private const val MEDIA_RECENTS = "RECENTS"
+        private const val MEDIA_MAIN_RECENTS = "MAIN_RECENTS"
         private const val MEDIA_CONFIGURATIONS = "CONFIGURATIONS"
         private const val MEDIA_PLAYBACK_MODE = "PLAYBACK_MODE"
         private const val MEDIA_REPEAT_ALREADY_PLAYED_SONGS = "REPEAT_ALREADY_PLAYED_SONGS"
@@ -212,10 +211,10 @@ class MediaService : MediaBrowserServiceCompat(),
 
         bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothAdapter = bluetoothManager.adapter
-        if (!bluetoothAdapter.isEnabled) {
-            val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+        //if (!bluetoothAdapter.isEnabled) {
+             //val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
             //startActivityForResult(enableBluetoothIntent, 1/*REQUEST_ENABLE_BT*/)
-        }
+        //}
         val discoverDevicesIntent = IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED)
         discoverDevicesIntent.addAction(BluetoothDevice.ACTION_ACL_CONNECTED)
         discoverDevicesIntent.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
@@ -306,7 +305,7 @@ class MediaService : MediaBrowserServiceCompat(),
             list.add(
                 MediaItem(
                     MediaDescriptionCompat.Builder()
-                        .setMediaId("${MEDIA_RECENTS}*&${MEDIA_PAGE}*&1")
+                        .setMediaId("${MEDIA_MAIN_RECENTS}*&${MEDIA_PAGE}*&1")
                         .setTitle("Recentes")
                         .setIconBitmap(
                             BitmapFactory.decodeResource(
@@ -416,7 +415,7 @@ class MediaService : MediaBrowserServiceCompat(),
                 )
             }
             result.sendResult(list)
-        } else if (parentId.contains(MEDIA_RECENTS)) {
+        } else if (parentId.contains(MEDIA_MAIN_RECENTS)) {
             result.detach()
             val list = ArrayList<MediaItem>()
             val contents = parentId.split("*&")
@@ -435,7 +434,7 @@ class MediaService : MediaBrowserServiceCompat(),
                     list.add(
                         MediaItem(
                             MediaDescriptionCompat.Builder()
-                                .setMediaId("${MEDIA_RECENTS}*&${MEDIA_PAGE}*&${pageActual + 1}")
+                                .setMediaId("${MEDIA_MAIN_RECENTS}*&${MEDIA_PAGE}*&${pageActual + 1}")
                                 .setTitle("Página ${pageActual + 1}")
                                 .setSubtitle("Músicas de ${pageActual * MEDIA_ITEMS_PAGE} até $totalNextPage")
                                 .build(), MediaItem.FLAG_BROWSABLE
@@ -473,7 +472,7 @@ class MediaService : MediaBrowserServiceCompat(),
                     list.add(
                         MediaItem(
                             MediaDescriptionCompat.Builder()
-                                .setMediaId("${MEDIA_RECENTS}*&${MEDIA_PAGE}*&${pageActual + 1}")
+                                .setMediaId("${MEDIA_MAIN_RECENTS}*&${MEDIA_PAGE}*&${pageActual + 1}")
                                 .setTitle("Página ${pageActual + 1}")
                                 .setSubtitle("Músicas de ${pageActual * MEDIA_ITEMS_PAGE} até $totalNextPage")
                                 .build(), MediaItem.FLAG_BROWSABLE
