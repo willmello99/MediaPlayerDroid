@@ -1,14 +1,13 @@
 package classes
 
-import android.media.MediaMetadataRetriever
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.Serializable
-import java.time.LocalDateTime
 import java.util.LinkedList
+import kotlin.collections.LinkedHashMap
 
 class MainStruct private constructor(): Serializable {
 
@@ -18,6 +17,7 @@ class MainStruct private constructor(): Serializable {
         const val FILE_RECENTS: String = "mediaRecents.trx"
         const val FILE_LOG: String = "mediaLog.trx"
         const val FILE_SETTINGS: String = "mediaSettings.trx"
+        const val FILE_LAST_PLAYLIST_MUSIC: String = "mediaLastPlaylistMusic.trx"
 
         @Volatile
         private var instance: MainStruct? = null
@@ -28,13 +28,15 @@ class MainStruct private constructor(): Serializable {
             }
     }
 
-    var musics: ArrayList<Music>? = null
-    var playlists: ArrayList<Playlist>? = null
-    var recents: LinkedList<MusicRecent>? = null
+    var musics: LinkedHashMap<Int, Music>? = null
+    var playlists: LinkedHashMap<Int, Playlist>? = null
+    var recents: LinkedList<PlaylistMusic>? = null
     var logs: ArrayList<String>? = null
     var settings: Settings? = null
+    var lastPlaylistMusic: PlaylistMusic? = null
 
-    private val mmr = MediaMetadataRetriever()
+    var playbackState: Int = 0
+
     private var dataDir: String? = null
 
     fun loadFromFile(directory: String){
@@ -45,6 +47,7 @@ class MainStruct private constructor(): Serializable {
         loadRecentsFromFile(directory)
         loadLogFromFile(directory)
         loadSettingsFromFile(directory)
+        loadLastMusic(directory)
     }
 
     private fun loadMusicsFromFile(directory: String){
@@ -54,7 +57,7 @@ class MainStruct private constructor(): Serializable {
                 val fis = FileInputStream(fileMusics)
                 val osi = ObjectInputStream(fis)
                 try {
-                    musics = osi.readObject() as ArrayList<Music>
+                    musics = osi.readObject() as LinkedHashMap<Int, Music>
                 } catch (_: Exception) {
                     fileMusics.delete()
                 }
@@ -62,24 +65,25 @@ class MainStruct private constructor(): Serializable {
                 fis.close()
             }
             if(musics == null){
-                musics = ArrayList()
+                musics = LinkedHashMap()
             }
-            if (musics!!.isEmpty()) {
+            /*if (musics!!.isEmpty()) {
+                var idMusic = 0
                 val folders = File("/storage/emulated/0/Músicas")
                 if (folders.listFiles() != null) {
                     for (folder in folders.listFiles()!!) {
                         if (folder.listFiles() != null) {
                             for (file in folder.listFiles()!!) {
                                 if (file.isFile) {
-                                    musics!!.add(Music(file.absolutePath, file.name))
+                                    musics!!.add(Music(idMusic, file.absolutePath, file.name))
+                                    idMusic++
                                 }
                             }
                         }
                     }
                 }
-                musics!!.sortBy { it.title + it.artist }
                 saveMusicsToFile(directory)
-            }
+            }*/
         }
     }
 
@@ -90,7 +94,7 @@ class MainStruct private constructor(): Serializable {
                 val fis = FileInputStream(filePlaylists)
                 val osi = ObjectInputStream(fis)
                 try {
-                    playlists = osi.readObject() as ArrayList<Playlist>
+                    playlists = osi.readObject() as LinkedHashMap<Int, Playlist>
                 } catch (_: Exception) {
                     filePlaylists.delete()
                 }
@@ -98,33 +102,41 @@ class MainStruct private constructor(): Serializable {
                 fis.close()
             }
             if(playlists == null){
-                playlists = ArrayList()
+                playlists = LinkedHashMap()
             }
             if (playlists!!.isEmpty()) {
-                var playlistId = 0
                 val folders = File("/storage/emulated/0/Músicas")
                 if (folders.listFiles() != null) {
+                    var idMusic = 0
+                    var idPlaylist = 0
                     for (folder in folders.listFiles()!!) {
                         if (folder.listFiles() != null) {
-                            playlistId++
-                            val playlist = Playlist(playlistId, folder.name)
+                            val playlist = Playlist(idPlaylist, folder.name)
                             for (file in folder.listFiles()!!) {
                                 if (file.isFile) {
-                                    var music = Music(file.absolutePath, file.name)
-                                    val i = musics!!.indexOf(music)
+                                    var music = Music(idMusic, file.absolutePath, file.name)
+
+                                    val i = musics!!.values.indexOf(music)
                                     if (i > -1) {
-                                        music = musics!![i]
+                                        music = musics!![i]!!
+                                    }else{
+                                        musics!![idMusic] = music
+                                        idMusic++
                                     }
-                                    playlist.add(music)
+                                    playlist.idsMusics.add(music.id)
                                 }
                             }
-                            if (playlist.isNotEmpty()) {
-                                playlists!!.add(playlist)
+                            if (playlist.idsMusics.isNotEmpty()) {
+                                playlists!![idPlaylist] = playlist
+                                playlist.idsMusics.sortBy { musics!![it]!!.fileName }
+                                idPlaylist++
                             }
                         }
                     }
+                    playlists!!.toList().sortedBy { it.second.name }
                 }
 
+                saveMusicsToFile(directory)
                 savePlaylistsToFile(directory)
             }
         }
@@ -137,7 +149,7 @@ class MainStruct private constructor(): Serializable {
                 val fis = FileInputStream(fileRecents)
                 val osi = ObjectInputStream(fis)
                 try {
-                    recents = osi.readObject() as LinkedList<MusicRecent>
+                    recents = osi.readObject() as LinkedList<PlaylistMusic>
                 } catch (_: Exception) {
                     fileRecents.delete()
                 }
@@ -193,6 +205,23 @@ class MainStruct private constructor(): Serializable {
         }
     }
 
+    private fun loadLastMusic(directory: String){
+        if(lastPlaylistMusic == null){
+            val fileLastMusic = File("$directory/$FILE_LAST_PLAYLIST_MUSIC")
+            if (fileLastMusic.exists()) {
+                val fis = FileInputStream(fileLastMusic)
+                val osi = ObjectInputStream(fis)
+                try {
+                    lastPlaylistMusic = osi.readObject() as PlaylistMusic
+                } catch (_: Exception) {
+                    fileLastMusic.delete()
+                }
+                osi.close()
+                fis.close()
+            }
+        }
+    }
+
     fun saveToFile(directory: String){
         dataDir = directory
 
@@ -201,9 +230,10 @@ class MainStruct private constructor(): Serializable {
         saveRecentsToFile(directory)
         saveLogToFile(directory)
         saveSettingsToFile(directory)
+        saveLastPlaylistMusic(directory)
     }
 
-    private fun saveMusicsToFile(directory: String){
+    private fun saveMusicsToFile(directory: String? = dataDir){
         val fos = FileOutputStream(File("$directory/$FILE_MUSICS"))
         val os = ObjectOutputStream(fos)
         os.writeObject(musics)
@@ -211,7 +241,7 @@ class MainStruct private constructor(): Serializable {
         fos.close()
     }
 
-    private fun savePlaylistsToFile(directory: String){
+    private fun savePlaylistsToFile(directory: String? = dataDir){
         val fos = FileOutputStream(File("$directory/$FILE_PLAYLISTS"))
         val os = ObjectOutputStream(fos)
         os.writeObject(playlists)
@@ -219,7 +249,7 @@ class MainStruct private constructor(): Serializable {
         fos.close()
     }
 
-    fun saveRecentsToFile(directory: String){
+    fun saveRecentsToFile(directory: String? = dataDir){
         val fos = FileOutputStream(File("$directory/$FILE_RECENTS"))
         val os = ObjectOutputStream(fos)
         os.writeObject(recents)
@@ -227,7 +257,7 @@ class MainStruct private constructor(): Serializable {
         fos.close()
     }
 
-    private fun saveLogToFile(directory: String){
+    fun saveLogToFile(directory: String? = dataDir){
         val fos = FileOutputStream(File("$directory/$FILE_LOG"))
         val os = ObjectOutputStream(fos)
         os.writeObject(logs)
@@ -235,7 +265,7 @@ class MainStruct private constructor(): Serializable {
         fos.close()
     }
 
-    private fun saveSettingsToFile(directory: String){
+    private fun saveSettingsToFile(directory: String? = dataDir){
         val fos = FileOutputStream(File("$directory/$FILE_SETTINGS"))
         val os = ObjectOutputStream(fos)
         os.writeObject(settings)
@@ -243,76 +273,13 @@ class MainStruct private constructor(): Serializable {
         fos.close()
     }
 
-    fun loadInformations(music: Music){
-        if(music.title.isNullOrEmpty()){
-
-            try{
-                var gerouErro= false
-                mmr.setDataSource(music.filePath)
-
-                try {
-                    music.title = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE)
-                }catch(e:Exception){
-                    gerouErro = true
-                    logs!!.add("${LocalDateTime.now()}: Erro em mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE) do arquivo ${music.filePath} - ${e.message}")
-                }
-                try{
-                    music.artist = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST)
-                }catch(e:Exception){
-                    gerouErro = true
-                    logs!!.add("${LocalDateTime.now()}: Erro em mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST) do arquivo ${music.filePath} - ${e.message}")
-                }
-                try{
-                    music.album = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM)
-                }catch(e:Exception){
-                    gerouErro = true
-                    logs!!.add("${LocalDateTime.now()}: Erro em mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM) do arquivo ${music.filePath} - ${e.message}")
-                }
-                try{
-                    music.genre = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE)
-                }catch(e:Exception){
-                    gerouErro = true
-                    logs!!.add("${LocalDateTime.now()}: Erro em mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE) do arquivo ${music.filePath} - ${e.message}")
-                }
-                try{
-                    val yearStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_YEAR)
-                    if(yearStr != null){
-                        music.year = yearStr.toLong()
-                    }
-                }catch(e:Exception){
-                    gerouErro = true
-                    logs!!.add("${LocalDateTime.now()}: Erro em mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_YEAR) do arquivo ${music.filePath} - ${e.message}")
-                }
-                try{
-                    val trackNumberStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER)
-                    if(trackNumberStr != null){
-                        music.trackNumber = trackNumberStr.toLong()
-                    }
-                }catch(e:Exception){
-                    gerouErro = true
-                    logs!!.add("${LocalDateTime.now()}: Erro em mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER) do arquivo ${music.filePath} - ${e.message}")
-                }
-                try{
-                    music.duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLong()
-                }catch(e:Exception){
-                    gerouErro = true
-                    logs!!.add("${LocalDateTime.now()}: Erro em mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION) do arquivo ${music.filePath} - ${e.message}")
-                }
-                try{
-                    music.art = mmr.embeddedPicture
-                }catch(e:Exception){
-                    gerouErro = true
-                    logs!!.add("${LocalDateTime.now()}: Erro em mmr.embeddedPicture do arquivo ${music.filePath} - ${e.message}")
-                }
-
-                if(gerouErro){
-                    saveLogToFile(dataDir!!)
-                }
-            }catch (e:Exception){
-                logs!!.add("${LocalDateTime.now()}: Erro em mmr.setDataSource(${music.filePath}) - ${e.message}")
-                saveLogToFile(dataDir!!)
-            }
+    private fun saveLastPlaylistMusic(directory: String? = dataDir){
+        if(lastPlaylistMusic != null) {
+            val fos = FileOutputStream(File("$directory/$FILE_LAST_PLAYLIST_MUSIC"))
+            val os = ObjectOutputStream(fos)
+            os.writeObject(lastPlaylistMusic)
+            os.close()
+            fos.close()
         }
     }
-
 }

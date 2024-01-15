@@ -1,9 +1,16 @@
 package com.example.mediaplayerdroid.shared
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.bluetooth.BluetoothManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
@@ -18,13 +25,15 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import android.view.KeyEvent
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
 import classes.MainStruct
 import classes.Music
-import classes.MusicRecent
 import classes.Playlist
+import classes.PlaylistMusic
 
 
 /**
@@ -81,33 +90,34 @@ class MediaService : MediaBrowserServiceCompat(),
 
 
     companion object {
-        const val MEDIA_ID_ROOT = "ROOT"
-        const val MEDIA_PLAYLISTS = "PLAYLISTS"
-        const val MEDIA_RECENTS = "RECENTS"
-        const val MEDIA_CONFIGURATIONS = "CONFIGURATIONS"
-        const val MEDIA_PLAYBACK_MODE = "PLAYBACK_MODE"
-        const val MEDIA_REPEAT_ALREADY_PLAYED_SONGS = "REPEAT_ALREADY_PLAYED_SONGS"
-        const val MEDIA_REPEAT_ALREADY_VALUE = "REPEAT_ALREADY_VALUE"
-        const val MEDIA_RECENTS_CLEAR = "RECENTS_CLEAR"
-        const val MEDIA_LOG = "LOG"
-        const val MEDIA_LOG_CLEAR = "LOG_CLEAR"
-        const val MEDIA_LOG_ITEM = "LOG_ITEM"
-        const val MEDIA_PLAYBACK_MODE_SELECTED = "PLAYBACK_MODE_SELECTED"
-        const val MEDIA_PLAYLIST = "{PLAYLIST}"
-        const val MEDIA_PAGE = "{PAGE}"
-        const val MEDIA_ITEMS_PAGE = 30
-        const val MEDIA_MUSIC = "{MUSIC}"
+        private const val MEDIA_ID_ROOT = "ROOT"
+        private const val MEDIA_PLAYLISTS = "PLAYLISTS"
+        private const val MEDIA_RECENTS = "RECENTS"
+        private const val MEDIA_CONFIGURATIONS = "CONFIGURATIONS"
+        private const val MEDIA_PLAYBACK_MODE = "PLAYBACK_MODE"
+        private const val MEDIA_REPEAT_ALREADY_PLAYED_SONGS = "REPEAT_ALREADY_PLAYED_SONGS"
+        private const val MEDIA_REPEAT_ALREADY_VALUE = "REPEAT_ALREADY_VALUE"
+        private const val MEDIA_RECENTS_CLEAR = "RECENTS_CLEAR"
+        private const val MEDIA_LOG = "LOG"
+        private const val MEDIA_LOG_CLEAR = "LOG_CLEAR"
+        private const val MEDIA_LOG_ITEM = "LOG_ITEM"
+        private const val MEDIA_PLAYBACK_MODE_SELECTED = "PLAYBACK_MODE_SELECTED"
+        private const val MEDIA_PLAYLIST = "{PLAYLIST}"
+        private const val MEDIA_PAGE = "{PAGE}"
+        private const val MEDIA_ITEMS_PAGE = 30
+        private const val MEDIA_MUSIC = "{MUSIC}"
         const val MEDIA_PLAYLIST_ID = "PLAYLIST_ID"
-        const val MEDIA_PLAYBACK_ISASC = "isAsc"
-        const val MEDIA_PLAYBACK_ISDESC = "isDesc"
-        const val MEDIA_PLAYBACK_ISREPEAT = "isRepeat"
-        const val MEDIA_PLAYBACK_ISRANDOMALL = "isRandomAll"
-        const val MEDIA_PLAYBACK_ISRANDOMPLAYLIST = "isRandomPlaylist"
+        private const val MEDIA_PLAYBACK_ISASC = "isAsc"
+        private const val MEDIA_PLAYBACK_ISDESC = "isDesc"
+        private const val MEDIA_PLAYBACK_ISREPEAT = "isRepeat"
+        private const val MEDIA_PLAYBACK_ISRANDOMALL = "isRandomAll"
+        private const val MEDIA_PLAYBACK_ISRANDOMPLAYLIST = "isRandomPlaylist"
 
-        const val CHANNEL_ID = "CANAL_MUSICA"
-        const val CHANNEL_NAME = "Canal de música"
-        const val CHANNEL_DESCRIPTION = "Canal de música"
-        const val NOTIFICATION_ID = 100
+        private const val CHANNEL_ID = "CANAL_MUSICA"
+        private const val CHANNEL_NAME = "Canal de música"
+        private const val CHANNEL_DESCRIPTION = "Canal de música"
+        private const val NOTIFICATION_ID = 100
+        private const val REQUEST_ENABLE_BT = 1
     }
 
     private lateinit var session: MediaSessionCompat
@@ -116,11 +126,10 @@ class MediaService : MediaBrowserServiceCompat(),
     private lateinit var audioManager: AudioManager
     private var audioAttributes: AudioAttributes? = null
     private var audioFocusRequest: AudioFocusRequest? = null
-    private var notificationManager: NotificationManager? = null
+    private lateinit var notificationManager: NotificationManager
     private lateinit var notification: NotificationCompat.Builder
-    private var playbackStateActual: Int = 0
-    private var playlistActual: Playlist? = null
-    private var musicActual: Music? = null
+    private lateinit var bluetoothManager: BluetoothManager
+    private lateinit var bluetoothAdapter: BluetoothAdapter
 
     private val callback = object : MediaSessionCompat.Callback() {
         override fun onPlay() { play() }
@@ -131,21 +140,10 @@ class MediaService : MediaBrowserServiceCompat(),
 
         override fun onPlayFromMediaId(mediaId: String?, extras: Bundle?) {
             if(mediaId != null) {
-                val musicName = mediaId.replace(MEDIA_MUSIC, "")
+                val idMusic = mediaId.replace(MEDIA_MUSIC, "").toInt()
                 if(extras != null){
                     val playlistId = extras.getInt(MEDIA_PLAYLIST_ID)
-                    if(playlistId > -1){
-                        for(playlist in mainStruct.playlists!!){
-                            if(playlist.id == playlistId){
-                                playlistActual = playlist
-                                break
-                            }
-                        }
-                    }
-                }
-                val i = mainStruct.musics!!.indexOf(Music("", musicName))
-                if(i > -1){
-                    start(mainStruct.musics!![i])
+                    start(PlaylistMusic(playlistId, idMusic))
                 }
             }
         }
@@ -186,52 +184,51 @@ class MediaService : MediaBrowserServiceCompat(),
         }
     }
 
+    private val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val action = intent.action
+            val device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
+            val deviceName = if (ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.BLUETOOTH_CONNECT
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                return
+            }else{
+                device!!.name
+            }
+            if (action == BluetoothDevice.ACTION_ACL_CONNECTED) {
+                Toast.makeText(context, "$deviceName conectado", Toast.LENGTH_LONG).show()
+            }
+            if (action == BluetoothDevice.ACTION_ACL_DISCONNECTED) {
+                Toast.makeText(context, "$deviceName desconectado", Toast.LENGTH_LONG).show()
+                pause()
+            }
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
+
+        bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        bluetoothAdapter = bluetoothManager.adapter
+        if (!bluetoothAdapter.isEnabled) {
+            val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            //startActivityForResult(enableBluetoothIntent, 1/*REQUEST_ENABLE_BT*/)
+        }
+        val discoverDevicesIntent = IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED)
+        discoverDevicesIntent.addAction(BluetoothDevice.ACTION_ACL_CONNECTED)
+        discoverDevicesIntent.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
+        registerReceiver(receiver, discoverDevicesIntent)
 
         session = MediaSessionCompat(this, "MediaService")
         sessionToken = session.sessionToken
         session.setCallback(callback)
-        //session.setFlags(
-        //    MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or
-        //            MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
-        //)
-
+        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         audioManager = getSystemService(AUDIO_SERVICE) as AudioManager
 
         mainStruct = MainStruct.getUnique()
-        // Carga inicial
         mainStruct.loadFromFile(dataDir.path)
-    }
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if(intent != null){
-            if(intent.hasExtra("COMMAND")){
-                when(intent.getStringExtra("COMMAND")){
-                    "START" -> {
-                        if(intent.hasExtra(MEDIA_PLAYLIST_ID)){
-                            val playlistId = intent.getIntExtra(MEDIA_PLAYLIST_ID, -1)
-                            if(playlistId > -1){
-                                for(playlist in mainStruct.playlists!!){
-                                    if(playlist.id == playlistId){
-                                        playlistActual = playlist
-                                        break
-                                    }
-                                }
-                            }
-                        }
-                        if(intent.hasExtra("MUSIC")){
-                            val musicName = intent.getStringExtra("MUSIC")!!
-                            val i = mainStruct.musics!!.indexOf(Music("", musicName))
-                            if(i > -1){
-                                start(mainStruct.musics!![i])
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return START_STICKY
     }
 
     override fun onDestroy() {
@@ -247,14 +244,35 @@ class MediaService : MediaBrowserServiceCompat(),
         mainStruct.saveToFile(dataDir.path)
         stopSelf()
         stopForeground(STOP_FOREGROUND_REMOVE)
-        if(notificationManager != null){
-            notificationManager!!.cancelAll()
-        }
+        notificationManager.cancelAll()
         if(audioFocusRequest != null){
             audioManager.abandonAudioFocusRequest(audioFocusRequest!!)
             audioFocusRequest = null
         }
+        unregisterReceiver(receiver)
         super.onDestroy()
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if(intent != null){
+            if(intent.hasExtra("COMMAND")){
+                when(intent.getStringExtra("COMMAND")){
+                    "START" -> {
+                        if(intent.hasExtra(MEDIA_PLAYLIST_ID)){
+                            if(intent.hasExtra("MUSIC")){
+                                val idPlaylist = intent.getIntExtra(MEDIA_PLAYLIST_ID, -1)
+                                val musicName = intent.getStringExtra("MUSIC")!!
+                                val i = mainStruct.musics!!.values.indexOf(Music(fileName = musicName))
+                                if(i > -1){
+                                    start(PlaylistMusic(idPlaylist, mainStruct.musics!![i]!!.id))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return START_STICKY
     }
 
     override fun onGetRoot(
@@ -319,13 +337,15 @@ class MediaService : MediaBrowserServiceCompat(),
         } else if (parentId == MEDIA_PLAYLISTS) {
             result.detach()
             val list = ArrayList<MediaItem>()
-            for (playlist in mainStruct.playlists!!) {
+
+            for (entry in mainStruct.playlists!!.entries) {
+                val playlist = entry.value
                 list.add(
                     MediaItem(
                         MediaDescriptionCompat.Builder()
-                            .setMediaId("${MEDIA_PLAYLIST}*&${playlist.name}*&${MEDIA_PAGE}*&1")
+                            .setMediaId("${MEDIA_PLAYLIST}*&${entry.key}*&${MEDIA_PAGE}*&1")
                             .setTitle(playlist.name)
-                            .setSubtitle("Total de músicas: ${playlist.size}")
+                            .setSubtitle("Total de músicas: ${playlist.idsMusics.size}")
                             .build(), MediaItem.FLAG_BROWSABLE
                     )
                 )
@@ -335,68 +355,65 @@ class MediaService : MediaBrowserServiceCompat(),
             result.detach()
             val list = ArrayList<MediaItem>()
             val contents = parentId.split("*&")
-            val playlistName = contents[1]
+            val idPlaylist = contents[1].toInt()
             val pageActual = contents[3].toInt()
-            for (playlist in mainStruct.playlists!!) {
-                if (playlist.name == playlistName) {
-                    val start = (MEDIA_ITEMS_PAGE) * (pageActual - 1)
-                    var total = MEDIA_ITEMS_PAGE * pageActual
-                    val isLastPage = total > playlist.size
-                    if (isLastPage) {
-                        total = playlist.size
-                    } else {
-                        var totalNextPage = (pageActual + 1) * MEDIA_ITEMS_PAGE
-                        if (totalNextPage > playlist.size) {
-                            totalNextPage = playlist.size
-                        }
-                        list.add(
-                            MediaItem(
-                                MediaDescriptionCompat.Builder()
-                                    .setMediaId("${MEDIA_PLAYLIST}*&${playlist.name}*&${MEDIA_PAGE}*&${pageActual + 1}")
-                                    .setTitle("Página ${pageActual + 1}")
-                                    .setSubtitle("Músicas de ${pageActual * MEDIA_ITEMS_PAGE} até $totalNextPage")
-                                    .build(), MediaItem.FLAG_BROWSABLE
-                            )
-                        )
-                    }
-                    // Carrega as 30 músicas da página que o usuário clicou
-                    for (i in (start..<total)) { // Paginação
-                        val music = playlist[i]
-                        mainStruct.loadInformations(music)
-                        val extra = Bundle()
-                        extra.putInt(MEDIA_PLAYLIST_ID, playlist.id)
-                        val mdc = MediaDescriptionCompat.Builder()
-                            .setMediaId("${MEDIA_MUSIC}${music.fileName}")
-                            .setTitle(music.title)
-                            .setSubtitle(music.artist)
-                            .setExtras(extra)
-                        if (music.art != null) {
-                            mdc.setIconBitmap(
-                                BitmapFactory.decodeByteArray(
-                                    music.art,
-                                    0,
-                                    music.art!!.size
-                                )
-                            )
-                        }
-                        list.add(MediaItem(mdc.build(), MediaItem.FLAG_PLAYABLE))
-                    }
-                    if (!isLastPage) {
-                        var totalNextPage = (pageActual + 1) * MEDIA_ITEMS_PAGE
-                        if (totalNextPage > playlist.size) {
-                            totalNextPage = playlist.size
-                        }
-                        list.add(
-                            MediaItem(
-                                MediaDescriptionCompat.Builder()
-                                    .setMediaId("${MEDIA_PLAYLIST}*&${playlist.name}*&${MEDIA_PAGE}*&${pageActual + 1}")
-                                    .setTitle("Página ${pageActual + 1}")
-                                    .setSubtitle("Músicas de ${pageActual * MEDIA_ITEMS_PAGE} até $totalNextPage")
-                                    .build(), MediaItem.FLAG_BROWSABLE
-                            )
-                        )
-                    }
+            val playlist = mainStruct.playlists!![idPlaylist]!!
+            val start = (MEDIA_ITEMS_PAGE) * (pageActual - 1)
+            var total = MEDIA_ITEMS_PAGE * pageActual
+            val isLastPage = total > playlist.idsMusics.size
+            if (isLastPage) {
+                total = playlist.idsMusics.size
+            } else {
+                var totalNextPage = (pageActual + 1) * MEDIA_ITEMS_PAGE
+                if (totalNextPage > playlist.idsMusics.size) {
+                    totalNextPage = playlist.idsMusics.size
                 }
+                list.add(
+                    MediaItem(
+                        MediaDescriptionCompat.Builder()
+                            .setMediaId("${MEDIA_PLAYLIST}*&$idPlaylist*&${MEDIA_PAGE}*&${pageActual + 1}")
+                            .setTitle("Página ${pageActual + 1}")
+                            .setSubtitle("Músicas de ${pageActual * MEDIA_ITEMS_PAGE} até $totalNextPage")
+                            .build(), MediaItem.FLAG_BROWSABLE
+                    )
+                )
+            }
+            // Carrega as 30 músicas da página que o usuário clicou
+            for (i in (start..<total)) { // Paginação
+                val music = mainStruct.musics!![playlist.idsMusics[i]]!!
+                music.loadInformations()
+                val extra = Bundle()
+                extra.putInt(MEDIA_PLAYLIST_ID, playlist.id)
+                val mdc = MediaDescriptionCompat.Builder()
+                    .setMediaId("${MEDIA_MUSIC}${music.id}")
+                    .setTitle(music.title)
+                    .setSubtitle(music.artist)
+                    .setExtras(extra)
+                if (music.art != null) {
+                    mdc.setIconBitmap(
+                        BitmapFactory.decodeByteArray(
+                            music.art,
+                            0,
+                            music.art!!.size
+                        )
+                    )
+                }
+                list.add(MediaItem(mdc.build(), MediaItem.FLAG_PLAYABLE))
+            }
+            if (!isLastPage) {
+                var totalNextPage = (pageActual + 1) * MEDIA_ITEMS_PAGE
+                if (totalNextPage > playlist.idsMusics.size) {
+                    totalNextPage = playlist.idsMusics.size
+                }
+                list.add(
+                    MediaItem(
+                        MediaDescriptionCompat.Builder()
+                            .setMediaId("${MEDIA_PLAYLIST}*&${playlist.id}*&${MEDIA_PAGE}*&${pageActual + 1}")
+                            .setTitle("Página ${pageActual + 1}")
+                            .setSubtitle("Músicas de ${pageActual * MEDIA_ITEMS_PAGE} até $totalNextPage")
+                            .build(), MediaItem.FLAG_BROWSABLE
+                    )
+                )
             }
             result.sendResult(list)
         } else if (parentId.contains(MEDIA_RECENTS)) {
@@ -428,20 +445,21 @@ class MediaService : MediaBrowserServiceCompat(),
                 // Carrega as 30 músicas da página que o usuário clicou
                 for (i in (start..<end)) { // Paginação
                     val musicRecent = mainStruct.recents!![i]
-                    mainStruct.loadInformations(musicRecent)
+                    val music = mainStruct.musics!![musicRecent.idMusic]!!
+                    music.loadInformations()
                     val extra = Bundle()
-                    extra.putInt(MEDIA_PLAYLIST_ID, musicRecent.playlistId)
+                    extra.putInt(MEDIA_PLAYLIST_ID, musicRecent.idPlaylist)
                     val mdc = MediaDescriptionCompat.Builder()
-                        .setMediaId("${MEDIA_MUSIC}${musicRecent.fileName}")
-                        .setTitle(musicRecent.title)
-                        .setSubtitle(musicRecent.artist)
+                        .setMediaId("${MEDIA_MUSIC}${music.id}")
+                        .setTitle(music.title)
+                        .setSubtitle(music.artist)
                         .setExtras(extra)
-                    if (musicRecent.art != null) {
+                    if (music.art != null) {
                         mdc.setIconBitmap(
                             BitmapFactory.decodeByteArray(
-                                musicRecent.art,
+                                music.art,
                                 0,
-                                musicRecent.art!!.size
+                                music.art!!.size
                             )
                         )
                     }
@@ -607,7 +625,7 @@ class MediaService : MediaBrowserServiceCompat(),
             result.sendResult(list)
         } else if(parentId.contains(MEDIA_REPEAT_ALREADY_VALUE)){
             result.detach()
-            val contents = parentId.split("*$")
+            val contents = parentId.split("*&")
             mainStruct.settings!!.repeatAlreadyPlayedSongs = contents[2] == "TRUE"
             result.sendResult(ArrayList())
         } else if (parentId == MEDIA_RECENTS_CLEAR) {
@@ -653,13 +671,11 @@ class MediaService : MediaBrowserServiceCompat(),
         }
     }
 
-    fun start(music: Music){
+    fun start(playlistMusic: PlaylistMusic){
         if(mediaPlayer != null){
             mediaPlayer!!.stop()
             mediaPlayer!!.reset()
         }
-
-        musicActual = null
 
         if(mediaPlayer == null){
             mediaPlayer = MediaPlayer()
@@ -674,10 +690,10 @@ class MediaService : MediaBrowserServiceCompat(),
             mediaPlayer!!.setOnErrorListener(this)
         }
 
+        val music = mainStruct.musics!![playlistMusic.idMusic]!!
         mediaPlayer!!.setDataSource(music.filePath)
+        mainStruct.lastPlaylistMusic = playlistMusic
         mediaPlayer!!.prepareAsync()
-
-        musicActual = music
     }
 
     override fun onAudioFocusChange(focusChange: Int) {
@@ -692,14 +708,9 @@ class MediaService : MediaBrowserServiceCompat(),
     override fun onPrepared(mp: MediaPlayer?) {
         play()
 
-        val playlistId = if(playlistActual != null){
-            playlistActual!!.id
-        }else{
-            -1
-        }
-        addRecent(playlistId, musicActual!!)
+        addRecent(mainStruct.lastPlaylistMusic!!)
 
-        createNotification(musicActual!!)
+        createNotification(mainStruct.lastPlaylistMusic!!.getMusic()!!)
     }
 
     override fun onError(mp: MediaPlayer, what: Int, extra: Int): Boolean {
@@ -708,13 +719,9 @@ class MediaService : MediaBrowserServiceCompat(),
         return true
     }
 
-    private fun addRecent(playlistId: Int, music: Music){
-        val musicRecent = MusicRecent(playlistId, music.filePath, music.fileName)
-        val i = mainStruct.recents!!.indexOf(musicRecent)
-        if(i in (0..< mainStruct.recents!!.size)){
-            mainStruct.recents!!.removeAt(i)
-        }
-        mainStruct.recents!!.addFirst(musicRecent)
+    private fun addRecent(playlistMusic: PlaylistMusic){
+        mainStruct.recents!!.remove(playlistMusic)
+        mainStruct.recents!!.addFirst(playlistMusic)
         mainStruct.saveRecentsToFile(dataDir.path)
     }
 
@@ -739,7 +746,8 @@ class MediaService : MediaBrowserServiceCompat(),
                         updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
                     }
                     else -> {
-                        mainStruct.logs!!.add("Não foi possível requisitar o foco de áudio ${musicActual!!.fileName}")
+                        val lastMusic = mainStruct.lastPlaylistMusic!!.getMusic()!!
+                        mainStruct.logs!!.add("Não foi possível requisitar o foco de áudio ${lastMusic.fileName}")
                     }
                 }
             }
@@ -784,71 +792,99 @@ class MediaService : MediaBrowserServiceCompat(),
     }
 
     private fun skipMusic(isNext: Boolean = false, isPrevious: Boolean = false){
-        var music: Music? = null
+        var playlistMusic: PlaylistMusic? = null
         if(mainStruct.settings!!.isAsc){
-            if(!playlistActual.isNullOrEmpty() && musicActual != null){
-                val i = playlistActual!!.indexOf(musicActual)
-                if(i in (0..< playlistActual!!.size)){
-                    if(isNext){
-                        music = playlistActual!![i+1]
-                    }else if(isPrevious){
-                        music = playlistActual!![i-1]
-                    }
+            val musicActual = mainStruct.lastPlaylistMusic!!.getMusic()!!
+            val playlistActual = mainStruct.lastPlaylistMusic!!.getPlaylist()!!
+            val i = playlistActual.idsMusics.indexOf(musicActual.id)
+            if(isNext){
+                if(i + 1 < playlistActual.idsMusics.size) {
+                    playlistMusic = PlaylistMusic(playlistActual.id, playlistActual.idsMusics[i + 1])
+                }
+            }else if(isPrevious){
+                if(i - 1 > 0) {
+                    playlistMusic = PlaylistMusic(playlistActual.id, playlistActual.idsMusics[i - 1])
                 }
             }
         }else if(mainStruct.settings!!.isDesc){
-            if(!playlistActual.isNullOrEmpty() && musicActual != null){
-                val i = playlistActual!!.indexOf(musicActual)
-                if(i in (0..< playlistActual!!.size)){
-                    if(isNext){
-                        music = playlistActual!![i-1]
-                    }else if(isPrevious){
-                        music = playlistActual!![i+1]
-                    }
+            val musicActual = mainStruct.lastPlaylistMusic!!.getMusic()!!
+            val playlistActual = mainStruct.lastPlaylistMusic!!.getPlaylist()!!
+            val i = playlistActual.idsMusics.indexOf(musicActual.id)
+            if(isNext){
+                if(i - 1 > 0) {
+                    playlistMusic = PlaylistMusic(playlistActual.id, playlistActual.idsMusics[i - 1])
+                }
+            }else if(isPrevious){
+                if(i + 1 < playlistActual.idsMusics.size) {
+                    playlistMusic = PlaylistMusic(playlistActual.id, playlistActual.idsMusics[i + 1])
                 }
             }
         }else if(mainStruct.settings!!.isRepeat){
-            music = musicActual
+            playlistMusic = mainStruct.lastPlaylistMusic!!
         }else if(mainStruct.settings!!.isRandomAll){
             var counter = 0
-            music = mainStruct.musics!![(0..< mainStruct.musics!!.size).random()]
-            while(music == musicActual ||
-                (!mainStruct.settings!!.repeatAlreadyPlayedSongs || findMusicRecent(music!!))){
+            val idMusicActual = mainStruct.lastPlaylistMusic!!.idMusic
+            var total = 0
+            for(entry in mainStruct.playlists!!){
+                total += entry.value.idsMusics.size
+            }
+
+            var start = 0
+            var index = (0..< total).random()
+            for(entry in mainStruct.playlists!!){
+                val end = start + entry.value.idsMusics.size
+                if(index in (start..< end)){
+                    playlistMusic = PlaylistMusic(entry.value.id, entry.value.idsMusics[end - index])
+                    break
+                }else{
+                    start += entry.value.idsMusics.size
+                }
+            }
+            while(playlistMusic!!.idMusic == idMusicActual ||
+                (!mainStruct.settings!!.repeatAlreadyPlayedSongs && findMusicRecent(playlistMusic))){
                 counter++
-                music = mainStruct.musics!![(0..< mainStruct.musics!!.size).random()]
-                if(counter > 10){ // loop infinito
-                    music = null
+                playlistMusic = null
+                start = 0
+                index = (0..< total).random()
+                for(entry in mainStruct.playlists!!){
+                    val end = start + entry.value.idsMusics.size
+                    if(index in (start..< end)){
+                        playlistMusic = PlaylistMusic(entry.value.id, entry.value.idsMusics[end - index])
+                        break
+                    }else{
+                        start += entry.value.idsMusics.size
+                    }
+                }
+                if(counter >= total){ // loop infinito
+                    playlistMusic = null
                     break
                 }
             }
-            playlistActual = null
         }else if(mainStruct.settings!!.isRandomPlaylist){
-            if(!playlistActual.isNullOrEmpty()){
-                var counter = 0
-                music = playlistActual!![(0..< playlistActual!!.size).random()]
-                while(musicActual!! == music ||
-                    (!mainStruct.settings!!.repeatAlreadyPlayedSongs || findMusicRecent(music!!))){
-                    counter++
-                    music = playlistActual!![(0..< playlistActual!!.size).random()]
-                    if(counter > 10){ // loop infinito
-                        music = null
-                        break
-                    }
+            mainStruct.lastPlaylistMusic
+            var counter = 0
+            val playlistActual = mainStruct.lastPlaylistMusic!!.getPlaylist()!!
+            val idMusicActual = mainStruct.lastPlaylistMusic!!.idMusic
+            var idMusic = playlistActual.idsMusics[(0..< playlistActual.idsMusics.size).random()]
+            playlistMusic = PlaylistMusic(playlistActual.id, idMusic)
+            while(idMusicActual == idMusic ||
+                (!mainStruct.settings!!.repeatAlreadyPlayedSongs && findMusicRecent(playlistMusic!!))){
+                counter++
+                idMusic = playlistActual.idsMusics[(0..< playlistActual.idsMusics.size).random()]
+                playlistMusic!!.idMusic = idMusic
+                if(counter >= playlistActual.idsMusics.size){ // loop infinito
+                    playlistMusic = null
+                    break
                 }
             }
         }
-        if(music != null){
-            start(music)
+        if(playlistMusic != null && playlistMusic.idMusic >= 0 && playlistMusic.idPlaylist >= 0){
+            start(playlistMusic)
         }
     }
 
-    private fun findMusicRecent(music: Music): Boolean{
-        for(musicRecent in mainStruct.recents!!){
-            if(musicRecent.fileName == music.fileName){
-                return true
-            }
-        }
-        return false
+    private fun findMusicRecent(playlistMusic: PlaylistMusic): Boolean{
+        return mainStruct.recents!!.indexOf(playlistMusic) > -1
     }
 
     fun seekTo(position: Long){
@@ -866,17 +902,13 @@ class MediaService : MediaBrowserServiceCompat(),
             this.description = CHANNEL_DESCRIPTION
         }
         // Register the channel with the system.
-        if(notificationManager == null) {
-            notificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        }
-        notificationManager!!.createNotificationChannel(channel)
+        notificationManager.createNotificationChannel(channel)
     }
 
     private fun createNotification(music: Music){
         createNotificationChannel()
 
-        mainStruct.loadInformations(music)
+        music.loadInformations()
 
         notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_small_icon)
@@ -929,15 +961,15 @@ class MediaService : MediaBrowserServiceCompat(),
 
         startForeground(NOTIFICATION_ID, notification.build())
 
-        notificationManager!!.notify(NOTIFICATION_ID, notification.build())
+        notificationManager.notify(NOTIFICATION_ID, notification.build())
     }
 
     private fun updatePlaybackState(state: Int){
         if(state != PlaybackStateCompat.STATE_NONE){
-            playbackStateActual = state
+            mainStruct.playbackState = state
         }
         session.setPlaybackState(PlaybackStateCompat.Builder()
-            .setState(playbackStateActual, mediaPlayer!!.currentPosition.toLong(), 1f)
+            .setState(mainStruct.playbackState, mediaPlayer!!.currentPosition.toLong(), 1f)
             .setActions(
                 PlaybackStateCompat.ACTION_PLAY or PlaybackStateCompat.ACTION_PAUSE or
                         PlaybackStateCompat.ACTION_SKIP_TO_NEXT or PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or PlaybackStateCompat.ACTION_SEEK_TO
