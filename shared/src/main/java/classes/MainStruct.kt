@@ -1,5 +1,6 @@
 package classes
 
+import android.app.Activity
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -33,7 +34,8 @@ class MainStruct private constructor(): Serializable {
     var recents: LinkedList<PlaylistMusic>? = null
     var logs: ArrayList<String>? = null
     var settings: Settings? = null
-    var lastPlaylistMusic: PlaylistMusic? = null
+    var lastPlaylistMusic: LastPlaylistMusic? = null
+    var mainActivity: Activity? = null
 
     var playbackState: Int = 0
 
@@ -128,12 +130,12 @@ class MainStruct private constructor(): Serializable {
                             }
                             if (playlist.idsMusics.isNotEmpty()) {
                                 playlists!![idPlaylist] = playlist
-                                playlist.idsMusics.sortBy { musics!![it]!!.fileName }
+                                //playlist.idsMusics.sortBy { musics!![it]!!.fileName }
                                 idPlaylist++
                             }
                         }
                     }
-                    playlists!!.toList().sortedBy { it.second.name }
+                    //playlists!!.toList().sortedBy { it.second.name }
                 }
 
                 saveMusicsToFile(directory)
@@ -212,7 +214,7 @@ class MainStruct private constructor(): Serializable {
                 val fis = FileInputStream(fileLastMusic)
                 val osi = ObjectInputStream(fis)
                 try {
-                    lastPlaylistMusic = osi.readObject() as PlaylistMusic
+                    lastPlaylistMusic = osi.readObject() as LastPlaylistMusic
                 } catch (_: Exception) {
                     fileLastMusic.delete()
                 }
@@ -273,7 +275,7 @@ class MainStruct private constructor(): Serializable {
         fos.close()
     }
 
-    private fun saveLastPlaylistMusic(directory: String? = dataDir){
+    fun saveLastPlaylistMusic(directory: String? = dataDir){
         if(lastPlaylistMusic != null) {
             val fos = FileOutputStream(File("$directory/$FILE_LAST_PLAYLIST_MUSIC"))
             val os = ObjectOutputStream(fos)

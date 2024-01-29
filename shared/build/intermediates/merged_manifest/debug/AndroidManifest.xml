@@ -4,6 +4,10 @@
 
     <uses-sdk android:minSdkVersion="34" />
 
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
     <application android:appCategory="audio" >
         <meta-data
             android:name="com.google.android.gms.car.application"
