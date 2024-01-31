@@ -143,6 +143,7 @@ class MediaService : MediaBrowserServiceCompat(),
     private lateinit var bluetoothAdapter: BluetoothAdapter
     private lateinit var handler: Handler
     private val runnableProgressUpdate = Runnable { progressUpdate() }
+    private var startWithLastMusic: Boolean = false
 
     private val callback = object : MediaSessionCompat.Callback() {
         override fun onPlay() { play() }
@@ -728,9 +729,22 @@ class MediaService : MediaBrowserServiceCompat(),
 
         val music = mainStruct.musics!![playlistMusic.idMusic]!!
         mediaPlayer!!.setDataSource(music.filePath)
-        mainStruct.lastPlaylistMusic = LastPlaylistMusic(playlistMusic.idPlaylist, playlistMusic.idMusic, 0)
+        if(mainStruct.lastPlaylistMusic == null
+        ||(mainStruct.lastPlaylistMusic!!.idPlaylist != playlistMusic.idPlaylist)
+        ||(mainStruct.lastPlaylistMusic!!.idMusic != playlistMusic.idMusic)) {
+            mainStruct.lastPlaylistMusic =
+                LastPlaylistMusic(playlistMusic.idPlaylist, playlistMusic.idMusic, 0)
+        }
         mainStruct.saveLastPlaylistMusic()
         mediaPlayer!!.prepareAsync()
+    }
+
+    private fun startLast(){
+        if(mainStruct.lastPlaylistMusic != null){
+            val playlistMusic = PlaylistMusic(mainStruct.lastPlaylistMusic!!.idPlaylist, mainStruct.lastPlaylistMusic!!.idMusic)
+            startWithLastMusic = true
+            start(playlistMusic)
+        }
     }
 
     override fun onAudioFocusChange(focusChange: Int) {
@@ -743,9 +757,14 @@ class MediaService : MediaBrowserServiceCompat(),
     }
 
     override fun onPrepared(mp: MediaPlayer?) {
+        if(startWithLastMusic){
+            mediaPlayer!!.seekTo(mainStruct.lastPlaylistMusic!!.position.toInt())
+            startWithLastMusic = false
+        }
+
         play()
 
-        addRecent(PlaylistMusic(mainStruct.lastPlaylistMusic!!.idPlaylist, mainStruct.lastPlaylistMusic!!.idMusic))
+        addRecent(mainStruct.lastPlaylistMusic!!)
 
         val music = mainStruct.musics!![mainStruct.lastPlaylistMusic!!.idMusic]!!
         createNotification(music)
@@ -757,7 +776,8 @@ class MediaService : MediaBrowserServiceCompat(),
         return true
     }
 
-    private fun addRecent(playlistMusic: PlaylistMusic){
+    private fun addRecent(lastPlaylistMusic: LastPlaylistMusic){
+        val playlistMusic = PlaylistMusic(lastPlaylistMusic.idPlaylist, lastPlaylistMusic.idMusic)
         mainStruct.recents!!.remove(playlistMusic)
         mainStruct.recents!!.addFirst(playlistMusic)
         mainStruct.saveRecentsToFile(dataDir.path)
@@ -808,6 +828,8 @@ class MediaService : MediaBrowserServiceCompat(),
             }else{
                 play()
             }
+        }else{
+            startLast()
         }
     }
 
@@ -962,6 +984,8 @@ class MediaService : MediaBrowserServiceCompat(),
         createNotificationChannel()
 
         music.loadInformations()
+
+        //mainStruct.lastPlaylistMusic!!.duration = music.duration!!
 
         notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_small_icon)

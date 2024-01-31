@@ -1,5 +1,6 @@
 package com.example.mediaplayerdroid.activitys
 
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -15,6 +16,7 @@ import com.automotivemusic.fragments.HomeFragment
 import com.automotivemusic.fragments.InfoFragment
 import com.automotivemusic.fragments.SettingsFragment
 import com.example.mediaplayerdroid.R
+import com.example.mediaplayerdroid.shared.MediaService
 import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -24,7 +26,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         MainStruct.getUnique().mainActivity = this
 
@@ -47,6 +48,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        val intent = Intent(this, MediaService::class.java)
+        stopService(intent)
+    }
+
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.nav_home -> supportFragmentManager.beginTransaction()
@@ -56,7 +63,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_settings -> supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, SettingsFragment()).commit()
             R.id.nav_historic -> supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, HistoricFragment()).commit()
+                .replace(R.id.fragment_container, HistoricFragment(supportFragmentManager)).commit()
             R.id.nav_info -> supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, InfoFragment()).commit()
             R.id.nav_logout -> {

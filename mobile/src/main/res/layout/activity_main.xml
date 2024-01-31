@@ -7,7 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".activitys.MainActivity"
     android:theme="@style/Theme.AppCompat.NoActionBar"
-    android:screenOrientation="portrait"
     android:id="@+id/drawer_layout"
     tools:openDrawer="start"
     android:background="@color/background">

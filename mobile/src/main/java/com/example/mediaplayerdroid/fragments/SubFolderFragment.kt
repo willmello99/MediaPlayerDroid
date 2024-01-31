@@ -24,7 +24,7 @@ import java.util.LinkedList
 class SubFolderFragment(
     private var fragmentManager: FragmentManager,
     private var playlist: Playlist?,
-    private var parent: Fragment) : Fragment() {
+    var parent: Fragment) : Fragment() {
 
     private lateinit var mainActivity: Activity
     private lateinit var mainStruct: MainStruct

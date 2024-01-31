@@ -9,8 +9,7 @@
     android:layout_gravity="center"
     android:gravity="center"
     android:background="@color/background"
-    android:theme="@style/Theme.AppCompat.NoActionBar"
-    android:screenOrientation="portrait">
+    android:theme="@style/Theme.AppCompat.NoActionBar">
 
     <ImageView
         android:id="@+id/ivLogo"

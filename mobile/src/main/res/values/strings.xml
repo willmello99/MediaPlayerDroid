@@ -14,4 +14,5 @@
     <string name="close_nav">Close Navigation Drawer</string>
     <string name="PERMISSIONS_NOT_GRANTED_SHUTDOWN_APP">Permissões não concedidas. Encerrando aplicação.</string>
     <string name="LOADING">Carregando</string>
+    <string name="limpar_lista">Limpar lista</string>
 </resources>

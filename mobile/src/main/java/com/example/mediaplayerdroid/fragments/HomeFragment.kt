@@ -1,7 +1,6 @@
 package com.automotivemusic.fragments
 
 import android.app.Activity
-import android.app.Fragment
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -15,8 +14,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
-import android.widget.Toolbar
+import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
+import classes.LastPlaylistMusic
 import classes.MainStruct
 import classes.Music
 import classes.PlaylistMusic
@@ -56,7 +56,7 @@ class HomeFragment : androidx.fragment.app.Fragment() {
     private var oldMusic: Music? = null
 
     // Tasks
-    private val taskRefreshViwer = Runnable { refreshViwer() }
+    private val taskRefreshViewer = Runnable { refreshViewer() }
     private val taskEnableSkipPreviousButton = Runnable { ivSkipPrevious.isEnabled = true }
     private val taskEnableStopButton = Runnable { ivStop.isEnabled = true }
     private val taskEnablePlayPauseButton = Runnable { ivPlayPause.isEnabled = true }
@@ -86,7 +86,7 @@ class HomeFragment : androidx.fragment.app.Fragment() {
 
         configureObjects()
 
-        refreshViwer()
+        refreshViewer()
     }
 
     override fun onCreateView(
@@ -182,13 +182,13 @@ class HomeFragment : androidx.fragment.app.Fragment() {
         ivPlaybackMode.setOnClickListener {
             ivPlaybackMode.isEnabled = false
             val intent = Intent(requireContext(), MediaService::class.java)
-            if(MainStruct.getUnique().settings!!.isAsc){
+            if(mainStruct.settings!!.isAsc){
                 intent.putExtra(MediaService.MEDIA_COMMAND, MediaService.MEDIA_PLAYBACK_ISDESC)
-            }else if(MainStruct.getUnique().settings!!.isDesc){
+            }else if(mainStruct.settings!!.isDesc){
                 intent.putExtra(MediaService.MEDIA_COMMAND, MediaService.MEDIA_PLAYBACK_ISREPEAT)
-            }else if(MainStruct.getUnique().settings!!.isRepeat){
+            }else if(mainStruct.settings!!.isRepeat){
                 intent.putExtra(MediaService.MEDIA_COMMAND, MediaService.MEDIA_PLAYBACK_ISRANDOMPLAYLIST)
-            }else if(MainStruct.getUnique().settings!!.isRandomPlaylist){
+            }else if(mainStruct.settings!!.isRandomPlaylist){
                 intent.putExtra(MediaService.MEDIA_COMMAND, MediaService.MEDIA_PLAYBACK_ISRANDOMALL)
             }else{
                 intent.putExtra(MediaService.MEDIA_COMMAND, MediaService.MEDIA_PLAYBACK_ISASC)
@@ -214,27 +214,28 @@ class HomeFragment : androidx.fragment.app.Fragment() {
         mainContext.startForegroundService(intent)
     }
 
-    private fun refreshViwer(){
-        val lastPlaylistMusic = MainStruct.getUnique().lastPlaylistMusic
+    private fun refreshViewer(){
+        val lastPlaylistMusic = mainStruct.lastPlaylistMusic
         if(lastPlaylistMusic != null){
             if(!seekto) {
-                refreshMainInfo(PlaylistMusic(lastPlaylistMusic.idPlaylist, lastPlaylistMusic.idMusic))
+                refreshMainInfo(lastPlaylistMusic)
                 refreshSeekBar(lastPlaylistMusic.position.toInt())
                 refreshButtons()
-                handler.postDelayed(taskRefreshViwer, 1000)
+                handler.postDelayed(taskRefreshViewer, 1000)
             }else{
                 seekto = false
-                handler.postDelayed(taskRefreshViwer, 300)
+                handler.postDelayed(taskRefreshViewer, 300)
             }
         }else{
-            handler.postDelayed(taskRefreshViwer, 1000)
+            handler.postDelayed(taskRefreshViewer, 1000)
         }
     }
 
-    private fun refreshMainInfo(playlistMusic: PlaylistMusic){
-        val music = mainStruct.musics!![playlistMusic.idMusic]!!
-        if(oldMusic != music) {
-            val playlist = mainStruct.playlists!![playlistMusic.idPlaylist]!!
+    private fun refreshMainInfo(lastPlaylistMusic: LastPlaylistMusic){
+        val music = mainStruct.musics!![lastPlaylistMusic.idMusic]
+        if(music != null && oldMusic != music) {
+            music.loadInformations()
+            val playlist = mainStruct.playlists!![lastPlaylistMusic.idPlaylist]!!
             tvPlaylistName.text = playlist.name
             if (music.title.isNullOrEmpty()) {
                 tvTitle.text = getString(R.string.NO_TITLE_INFORMATION)
@@ -280,10 +281,10 @@ class HomeFragment : androidx.fragment.app.Fragment() {
     }
 
     private fun refreshButtons(){
-        if(mainStruct.playbackState == PlaybackState.STATE_PAUSED || mainStruct.playbackState == PlaybackState.STATE_STOPPED){
-            ivPlayPause.setImageResource(R.drawable.play_45)
-        }else{
+        if(mainStruct.playbackState == PlaybackState.STATE_PLAYING){
             ivPlayPause.setImageResource(R.drawable.pause_45)
+        }else{
+            ivPlayPause.setImageResource(R.drawable.play_45)
         }
 
         if(mainStruct.settings!!.isAsc){
