@@ -1,7 +1,6 @@
 package com.example.mediaplayerdroid.activitys
 
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
@@ -61,11 +60,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_folders -> supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, FoldersFragment(supportFragmentManager)).commit()
             R.id.nav_settings -> supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, SettingsFragment()).commit()
+                .replace(R.id.fragment_container, SettingsFragment(supportFragmentManager)).commit()
             R.id.nav_historic -> supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, HistoricFragment(supportFragmentManager)).commit()
             R.id.nav_info -> supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, InfoFragment()).commit()
+                .replace(R.id.fragment_container, InfoFragment(supportFragmentManager)).commit()
             R.id.nav_logout -> {
                 Toast.makeText(this, "Saindo...", Toast.LENGTH_LONG).show()
                 finish()

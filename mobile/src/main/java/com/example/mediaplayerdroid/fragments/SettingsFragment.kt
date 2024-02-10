@@ -1,32 +1,78 @@
 package com.automotivemusic.fragments
 
+import android.app.Activity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
+import android.widget.ImageView
+import androidx.core.view.isVisible
+import androidx.fragment.app.FragmentManager
+import classes.MainStruct
 import com.example.mediaplayerdroid.R
+import com.google.android.material.navigation.NavigationView
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+class SettingsFragment(
+    private var fragmentManager: FragmentManager) : Fragment() {
 
-/**
- * A simple [Fragment] subclass.
- * Use the [SettingsFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class SettingsFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private lateinit var ivBackToolbar: ImageView
+    private lateinit var cbRepeatAlreadyMusics: CheckBox
+    private lateinit var mainStruct: MainStruct
+    private lateinit var mainActivity: Activity
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        mainStruct = MainStruct.getUnique()
+        mainActivity = mainStruct.mainActivity!!
+        mainActivity.title = "Configurações"
+
+        ivBackToolbar = mainActivity.findViewById(R.id.ivBackToolbar)
+        ivBackToolbar.isVisible = true
+        ivBackToolbar.setOnClickListener {
+            var lbFindFragment = false
+            for(fragment in fragmentManager.fragments) {
+                if (fragment !is SettingsFragment) {
+                    // Volta para o último fragment aberto antes de abrir o histórico
+                    if (fragment is SubFolderFragment) {
+                        var prevSubFragment = fragmentManager.fragments[0] as SubFolderFragment
+                        while (true) {
+                            if (prevSubFragment.parent is SubFolderFragment) {
+                                prevSubFragment = prevSubFragment.parent as SubFolderFragment
+                            } else {
+                                lbFindFragment = true
+                                fragmentManager.beginTransaction()
+                                    .replace(R.id.fragment_container, prevSubFragment.parent)
+                                    .commit()
+                                break
+                            }
+                        }
+                    } else {
+                        lbFindFragment = true
+                        fragmentManager.beginTransaction()
+                            .replace(R.id.fragment_container, fragment).commit()
+                    }
+                }
+            }
+            if(!lbFindFragment){
+                val menu = mainActivity.findViewById<NavigationView>(R.id.nav_view).menu
+                menu.findItem(R.id.nav_home).isChecked = true
+                menu.findItem(R.id.nav_folders).isChecked = false
+                menu.findItem(R.id.nav_settings).isChecked = false
+                menu.findItem(R.id.nav_historic).isChecked = false
+                menu.findItem(R.id.nav_info).isChecked = false
+                fragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, HomeFragment()).commit()
+            }
+        }
+
+        cbRepeatAlreadyMusics = view.findViewById(R.id.cbRepeatAlreadyMusics)
+        cbRepeatAlreadyMusics.isChecked = mainStruct.settings!!.repeatAlreadyPlayedSongs
+        cbRepeatAlreadyMusics.setOnClickListener {
+            mainStruct.settings!!.repeatAlreadyPlayedSongs = cbRepeatAlreadyMusics.isChecked
         }
     }
 
@@ -38,23 +84,4 @@ class SettingsFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_settings, container, false)
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SettingsFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SettingsFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
-    }
 }
