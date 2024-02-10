@@ -79,8 +79,8 @@ class InfoFragment(
             val packageName = context?.packageName!!
             val packageInfo =
                 packageManager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
-            tvVersionName.text = "v ${packageInfo.versionName}"
-            tvVersionNumber.text = PackageInfoCompat.getLongVersionCode(packageInfo).toString()
+            tvVersionName.text = "versão ${packageInfo.versionName}"
+            tvVersionNumber.text = "Número da versão ${PackageInfoCompat.getLongVersionCode(packageInfo).toString()}"
         }catch (e: Exception) {
             tvVersionName.text = "Versão desconhecida"
             tvVersionNumber.text = ""
