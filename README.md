@@ -15,7 +15,7 @@ Windows 10 10.0
 o HUR ou Emulador de receptor de unidade principal para Android Auto serve para simular a central do veiculo localmente (localhost) para testes e depuração sem ter que ir e voltar a todo instante na multimedia física.
 
 Música em reprodução no HUR (Android Auto):
-![image](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/b040c165-289d-4a44-84f6-a05ca1dda405)
+![image](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/ddbff657-1666-43d4-b752-a08f1a93e4f8)
 
 Lista de playlits no HUR (Android Auto):
 ![image](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/467b635c-3c59-4044-bf88-fe8613c87f4e)
