@@ -27,7 +27,7 @@ Lista de músicas tocadas recentemente no HUR (Android Auto):
 ![image](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/1d6c25b8-8036-45c6-ae04-c7e2af6207f3)
 
 Menu de configurações no HUR (Android Auto):
-![Example 5](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/7cd440b7-c75d-44c1-8c52-605d4666d2bf)
+![image](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/b58ded1c-a7c6-48a9-acfd-8975c5b745a9)
 
 Modos de reprodução disponíveis na aplicação (Android Auto):
 ![Example 6](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/7ecdb828-646c-4b24-aa2f-df74e7b80bd7)
