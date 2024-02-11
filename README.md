@@ -21,7 +21,7 @@ Lista de playlits no HUR (Android Auto):
 ![image](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/467b635c-3c59-4044-bf88-fe8613c87f4e)
 
 Paginação de músicas dentro das playlists com mais de 30 itens no HUR (Android Auto):
-![Example 3](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/990e21b9-12f9-45d1-b885-77c86e3c5db9)
+![image](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/cf202be0-58d3-4f35-9cbe-777545b5f24b)
 
 Lista de músicas tocadas recentemente no HUR (Android Auto):
 ![Example 4](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/64b18f5c-2752-4fa9-8821-4a210486f19e)
