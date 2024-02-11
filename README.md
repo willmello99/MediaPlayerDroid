@@ -12,24 +12,24 @@ VM: OpenJDK 64-Bit Server VM by JetBrains s.r.o.
 
 Windows 10 10.0
 
+
 o HUR ou Emulador de receptor de unidade principal para Android Auto serve para simular a central do veiculo localmente (localhost) para testes e depuração sem ter que ir e voltar a todo instante na multimedia física.
 
 Música em reprodução no HUR (Android Auto):
-![image](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/b040c165-289d-4a44-84f6-a05ca1dda405)
+![image](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/ddbff657-1666-43d4-b752-a08f1a93e4f8)
 
 Lista de playlits no HUR (Android Auto):
-![Example 2](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/f369c80e-fee6-4cbe-bf78-0e857dd3aaa6)
+![image](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/d6487d09-16b7-4b0a-afca-e019b4c396a5)
 
 Paginação de músicas dentro das playlists com mais de 30 itens no HUR (Android Auto):
-![Example 3](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/990e21b9-12f9-45d1-b885-77c86e3c5db9)
+![image](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/cf202be0-58d3-4f35-9cbe-777545b5f24b)
 
 Lista de músicas tocadas recentemente no HUR (Android Auto):
-![Example 4](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/64b18f5c-2752-4fa9-8821-4a210486f19e)
+![image](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/1d6c25b8-8036-45c6-ae04-c7e2af6207f3)
 
 Menu de configurações no HUR (Android Auto):
-![Example 5](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/7cd440b7-c75d-44c1-8c52-605d4666d2bf)
+![image](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/b58ded1c-a7c6-48a9-acfd-8975c5b745a9)
 
-Modos de reprodução disponíveis na aplicação (Android Auto):
-![Example 6](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/7ecdb828-646c-4b24-aa2f-df74e7b80bd7)
-
+Modos de reproduções disponíveis na aplicação (Android Auto):
+![image](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/353e57a1-bc3f-4b9b-89b1-fc95e6931863)
 
