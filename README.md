@@ -12,6 +12,7 @@ VM: OpenJDK 64-Bit Server VM by JetBrains s.r.o.
 
 Windows 10 10.0
 
+
 o HUR ou Emulador de receptor de unidade principal para Android Auto serve para simular a central do veiculo localmente (localhost) para testes e depuração sem ter que ir e voltar a todo instante na multimedia física.
 
 Música em reprodução no HUR (Android Auto):
@@ -29,7 +30,6 @@ Lista de músicas tocadas recentemente no HUR (Android Auto):
 Menu de configurações no HUR (Android Auto):
 ![image](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/b58ded1c-a7c6-48a9-acfd-8975c5b745a9)
 
-Modos de reprodução disponíveis na aplicação (Android Auto):
-![Example 6](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/7ecdb828-646c-4b24-aa2f-df74e7b80bd7)
-
+Modos de reproduções disponíveis na aplicação (Android Auto):
+![image](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/353e57a1-bc3f-4b9b-89b1-fc95e6931863)
 
