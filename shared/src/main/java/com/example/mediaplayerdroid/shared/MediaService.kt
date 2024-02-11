@@ -413,7 +413,7 @@ class MediaService : MediaBrowserServiceCompat(),
             }
             musics.sortBy { it.fileName }
             for (i in (start..<total)) { // Paginação
-                val music = musics[playlist.idsMusics[i]]
+                val music = mainStruct.musics!![playlist.idsMusics[i]]!!
                 music.loadInformations()
                 val extra = Bundle()
                 extra.putInt(MEDIA_PLAYLIST_ID, playlist.id)
