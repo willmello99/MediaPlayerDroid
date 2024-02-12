@@ -2,6 +2,7 @@ package com.automotivemusic.fragments
 
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -15,6 +16,7 @@ import androidx.fragment.app.FragmentManager
 import classes.MainStruct
 import com.example.mediaplayerdroid.R
 import com.google.android.material.navigation.NavigationView
+
 
 class InfoFragment(
     private var fragmentManager: FragmentManager) : Fragment() {
@@ -77,10 +79,16 @@ class InfoFragment(
         try{
             val packageManager = context?.packageManager!!
             val packageName = context?.packageName!!
-            val packageInfo =
+            val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 packageManager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
+            } else {
+                packageManager.getPackageInfo(packageName, 0)
+            }
+            //tvVersionNumber.text = packageInfo.longVersionCode.toString()
+
             tvVersionName.text = "versão ${packageInfo.versionName}"
             tvVersionNumber.text = "Número da versão ${PackageInfoCompat.getLongVersionCode(packageInfo).toString()}"
+
         }catch (e: Exception) {
             tvVersionName.text = "Versão desconhecida"
             tvVersionNumber.text = ""

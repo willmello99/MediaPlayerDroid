@@ -9,10 +9,10 @@ android {
 
     defaultConfig {
         applicationId = "com.example.mediaplayerdroid"
-        minSdk = 34
+        minSdk = 31
         targetSdk = 34
-        versionCode = 5
-        versionName = "1.5"
+        versionCode = 6
+        versionName = "1.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

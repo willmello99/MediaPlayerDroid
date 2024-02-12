@@ -2,6 +2,7 @@ package com.example.mediaplayerdroid.activitys
 
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -26,15 +27,20 @@ class LoadingActivity : AppCompatActivity() {
 
     private val requestMultiplePermissions =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            var enableStart = true
             for(perm in permissions.entries){
                 if(!perm.value){
                     Toast.makeText(this,
                         getString(R.string.PERMISSIONS_NOT_GRANTED_SHUTDOWN_APP), Toast.LENGTH_LONG).show()
                     finish()
+                    enableStart = false
+                    break
                 }
             }
-            // Se chegar aqui é por que todas as pemissões foram concedidas
-            startApplication()
+            if(enableStart) {
+                // Se chegar aqui é por que todas as pemissões foram concedidas
+                startApplication()
+            }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,12 +49,18 @@ class LoadingActivity : AppCompatActivity() {
 
         handler = Handler(Looper.getMainLooper())
 
-        requestMultiplePermissions.launch(arrayOf(
-            android.Manifest.permission.READ_MEDIA_AUDIO,
-            android.Manifest.permission.POST_NOTIFICATIONS,
-            android.Manifest.permission.BLUETOOTH,
-            android.Manifest.permission.BLUETOOTH_ADMIN,
-            android.Manifest.permission.BLUETOOTH_CONNECT))
+        val permissions = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            arrayOf(android.Manifest.permission.READ_MEDIA_AUDIO,
+                android.Manifest.permission.POST_NOTIFICATIONS,
+                android.Manifest.permission.BLUETOOTH,
+                android.Manifest.permission.BLUETOOTH_ADMIN,
+                android.Manifest.permission.BLUETOOTH_CONNECT)
+        }else{
+            arrayOf(android.Manifest.permission.BLUETOOTH,
+                android.Manifest.permission.BLUETOOTH_ADMIN,
+                android.Manifest.permission.BLUETOOTH_CONNECT)
+        }
+        requestMultiplePermissions.launch(permissions)
     }
 
     private fun startApplication(){

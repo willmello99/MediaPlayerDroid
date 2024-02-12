@@ -17,6 +17,7 @@ import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.AudioManager.OnAudioFocusChangeListener
 import android.media.MediaPlayer
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -177,7 +178,14 @@ class MediaService : MediaBrowserServiceCompat(),
         override fun onMediaButtonEvent(mediaButtonEvent: Intent?): Boolean {
             if(mediaButtonEvent != null) {
                 if (Intent.ACTION_MEDIA_BUTTON == mediaButtonEvent.action) {
-                    val event = mediaButtonEvent.getParcelableExtra(Intent.EXTRA_KEY_EVENT, KeyEvent::class.java)
+                    val event = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        mediaButtonEvent.getParcelableExtra(
+                            Intent.EXTRA_KEY_EVENT,
+                            KeyEvent::class.java
+                        )
+                    }else{
+                        mediaButtonEvent.extras!!.get(Intent.EXTRA_KEY_EVENT) as KeyEvent
+                    }
 
                     if(event?.action == KeyEvent.ACTION_UP) {
                         event.let {
@@ -201,7 +209,11 @@ class MediaService : MediaBrowserServiceCompat(),
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val action = intent.action
-            val device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
+            val device = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+                intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
+            }else{
+                intent.extras!!.get(BluetoothDevice.EXTRA_DEVICE) as BluetoothDevice
+            }
             val deviceName = if (ActivityCompat.checkSelfPermission(
                     context,
                     Manifest.permission.BLUETOOTH_CONNECT
