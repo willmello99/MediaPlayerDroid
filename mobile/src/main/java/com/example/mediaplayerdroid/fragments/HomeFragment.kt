@@ -227,6 +227,15 @@ class HomeFragment : androidx.fragment.app.Fragment() {
                 handler.postDelayed(taskRefreshViewer, 300)
             }
         }else{
+            tvTitle.text = "Nenhuma informação de título"
+            tvArtist.text = "Nenhuma informação de artista"
+            tvTitleAlbum.text = "Nenhuma informação de album"
+            tvGenre.text = "Nenhuma informação de gênero"
+            ivAlbumArt.setImageResource(R.drawable.music)
+            sbProgressMusic.max = 0
+            tvCurrentTime.text = Utils.getTimeString(0)
+            tvTotalTime.text = Utils.getTimeString(0)
+            ivPlayPause.setImageResource(R.drawable.play_45)
             handler.postDelayed(taskRefreshViewer, 1000)
         }
     }

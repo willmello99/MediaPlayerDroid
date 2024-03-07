@@ -9,7 +9,6 @@ import android.widget.FrameLayout
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.example.mediaplayerdroid.R
-import com.example.mediaplayerdroid.activitys.MainActivity
 
 class FoldersFragment(
     private var fragmentManager: FragmentManager) : Fragment() {
@@ -23,6 +22,7 @@ class FoldersFragment(
 
         val fragment = SubFolderFragment(fragmentManager, null, this)
         fragmentManager.beginTransaction().replace(R.id.flFrameLayout, fragment).setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN).commit()
+
     }
 
     override fun onCreateView(

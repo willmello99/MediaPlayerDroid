@@ -68,6 +68,7 @@ class InfoFragment(
                 menu.findItem(R.id.nav_settings).isChecked = false
                 menu.findItem(R.id.nav_historic).isChecked = false
                 menu.findItem(R.id.nav_info).isChecked = false
+                menu.findItem(R.id.nav_log).isChecked = false
                 fragmentManager.beginTransaction()
                     .replace(R.id.fragment_container, HomeFragment()).commit()
             }

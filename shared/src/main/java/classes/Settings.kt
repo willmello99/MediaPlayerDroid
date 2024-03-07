@@ -9,4 +9,5 @@ class Settings: Serializable {
     var isDesc: Boolean = false
     var isRepeat: Boolean = false
     var repeatAlreadyPlayedSongs = true
+    var reloadSongsNextBoot = false
 }

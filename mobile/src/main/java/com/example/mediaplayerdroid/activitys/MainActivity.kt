@@ -15,6 +15,7 @@ import com.automotivemusic.fragments.HomeFragment
 import com.automotivemusic.fragments.InfoFragment
 import com.automotivemusic.fragments.SettingsFragment
 import com.example.mediaplayerdroid.R
+import com.example.mediaplayerdroid.fragments.LogFragment
 import com.example.mediaplayerdroid.shared.MediaService
 import com.google.android.material.navigation.NavigationView
 
@@ -65,6 +66,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 .replace(R.id.fragment_container, HistoricFragment(supportFragmentManager)).commit()
             R.id.nav_info -> supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, InfoFragment(supportFragmentManager)).commit()
+            R.id.nav_log -> supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, LogFragment(supportFragmentManager)).commit()
             R.id.nav_logout -> {
                 Toast.makeText(this, "Saindo...", Toast.LENGTH_LONG).show()
                 finish()

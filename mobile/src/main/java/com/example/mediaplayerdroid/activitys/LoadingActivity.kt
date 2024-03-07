@@ -115,6 +115,7 @@ class LoadingActivity : AppCompatActivity() {
     private fun openMainActivity(){
         ivLogo.clearAnimation()
         val intentStartMainActivity = Intent(this, MainActivity::class.java)
+        //MainStruct.getUnique().mainIntent = intentStartMainActivity
         startActivity(intentStartMainActivity)
         finish()
     }

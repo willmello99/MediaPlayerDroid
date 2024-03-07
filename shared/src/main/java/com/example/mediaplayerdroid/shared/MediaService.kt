@@ -3,6 +3,7 @@ package com.example.mediaplayerdroid.shared
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
@@ -124,6 +125,7 @@ class MediaService : MediaBrowserServiceCompat(),
         const val MEDIA_STOP = "STOP"
         const val MEDIA_SEEK_TO = "SEEK_TO"
         const val MEDIA_SEEK_TO_POSITION = "SEEK_TO_POSITION"
+        const val MEDIA_STOP_AND_RESET = "STOP_AND_RESET"
 
         private const val CHANNEL_ID = "CANAL_MUSICA"
         private const val CHANNEL_NAME = "Canal de música"
@@ -296,6 +298,7 @@ class MediaService : MediaBrowserServiceCompat(),
                     }
                     MEDIA_PLAY_PAUSE -> playPause()
                     MEDIA_STOP -> stop()
+                    MEDIA_STOP_AND_RESET -> stopAndReset()
                     MEDIA_SKIP_TO_NEXT -> skipToNext()
                     MEDIA_SKIP_TO_PREVIOUS -> skipToPrevious()
                     MEDIA_PLAYBACK_ISASC -> setMediaPlayback(MEDIA_PLAYBACK_ISASC)
@@ -722,10 +725,12 @@ class MediaService : MediaBrowserServiceCompat(),
 
     fun start(playlistMusic: PlaylistMusic){
         if(mediaPlayer != null){
-            mediaPlayer!!.stop()
+            if(mainStruct.playbackState != PlaybackStateCompat.STATE_NONE){
+                mediaPlayer!!.stop()
+            }
             mediaPlayer!!.reset()
         }
-
+        mainStruct.playbackState = PlaybackStateCompat.STATE_BUFFERING
         if(mediaPlayer == null){
             mediaPlayer = MediaPlayer()
             audioAttributes = AudioAttributes.Builder()
@@ -796,7 +801,7 @@ class MediaService : MediaBrowserServiceCompat(),
     }
 
     fun play(){
-        if(mediaPlayer != null){
+        if(mediaPlayer != null && mainStruct.playbackState != PlaybackStateCompat.STATE_NONE){
             if(audioFocusRequest == null){
                 audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
                     .setAudioAttributes(audioAttributes!!)
@@ -827,7 +832,8 @@ class MediaService : MediaBrowserServiceCompat(),
     }
 
     fun pause(){
-        if(mediaPlayer != null){
+        if(mediaPlayer != null
+            && mainStruct.playbackState != PlaybackStateCompat.STATE_NONE){
             mediaPlayer!!.pause()
             updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
         }
@@ -835,10 +841,12 @@ class MediaService : MediaBrowserServiceCompat(),
 
     fun playPause(){
         if(mediaPlayer != null){
-            if(mediaPlayer!!.isPlaying){
-                pause()
-            }else{
-                play()
+            if(mainStruct.playbackState != PlaybackStateCompat.STATE_NONE) {
+                if (mediaPlayer!!.isPlaying) {
+                    pause()
+                } else {
+                    play()
+                }
             }
         }else{
             startLast()
@@ -846,23 +854,44 @@ class MediaService : MediaBrowserServiceCompat(),
     }
 
     fun stop(){
-        if(mediaPlayer != null){
+        if(mediaPlayer != null
+            && mainStruct.playbackState != PlaybackStateCompat.STATE_NONE){
             mediaPlayer!!.pause()
             mediaPlayer!!.seekTo(0)
             updatePlaybackState(PlaybackStateCompat.STATE_STOPPED)
         }
     }
 
-    fun skipToNext(){
-        updatePlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_NEXT)
+    private fun stopAndReset(){
+        if(mediaPlayer != null){
+            mediaPlayer!!.stop()
+            mediaPlayer!!.reset()
+            mediaPlayer!!.release()
+            mediaPlayer = null
+            mainStruct.playbackState = PlaybackStateCompat.STATE_NONE
+            mainStruct.lastPlaylistMusic = null
+            notificationManager.cancelAll()
+            if(audioFocusRequest != null){
+                audioManager.abandonAudioFocusRequest(audioFocusRequest!!)
+                audioFocusRequest = null
+            }
+        }
+    }
 
-        skipMusic(isNext = true)
+    fun skipToNext(){
+        if(mainStruct.playbackState != PlaybackStateCompat.STATE_NONE) {
+            updatePlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_NEXT)
+
+            skipMusic(isNext = true)
+        }
     }
 
     fun skipToPrevious(){
-        updatePlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS)
+        if(mainStruct.playbackState != PlaybackStateCompat.STATE_NONE) {
+            updatePlaybackState(PlaybackStateCompat.STATE_SKIPPING_TO_PREVIOUS)
 
-        skipMusic(isPrevious = true)
+            skipMusic(isPrevious = true)
+        }
     }
 
     private fun skipMusic(isNext: Boolean = false, isPrevious: Boolean = false){
@@ -973,10 +1002,14 @@ class MediaService : MediaBrowserServiceCompat(),
     private fun progressUpdate(){
         val lock = Any()
         synchronized(lock){
-            if(mainStruct.lastPlaylistMusic != null) {
-                mainStruct.lastPlaylistMusic!!.position = mediaPlayer!!.currentPosition.toLong()
-
-                handler.postDelayed(runnableProgressUpdate, 1000)
+            if(mainStruct.lastPlaylistMusic != null && mediaPlayer != null) {
+                try{
+                    mainStruct.lastPlaylistMusic!!.position = mediaPlayer!!.currentPosition.toLong()
+                    handler.postDelayed(runnableProgressUpdate, 1000)
+                }catch (e: IllegalStateException){
+                    mainStruct.logs!!.add("Erro: ${e.message}")
+                    Log.d("Exceção", "Erro ao recuperar a posição da música")
+                }
             }
         }
     }
@@ -1020,6 +1053,15 @@ class MediaService : MediaBrowserServiceCompat(),
                     )
                 )
             )
+        if(mainStruct.mainIntent != null) {
+            val mainPendingIntent = PendingIntent.getActivity(
+                this,
+                0,
+                mainStruct.mainIntent,
+                PendingIntent.FLAG_IMMUTABLE
+            )
+            notification.setContentIntent(mainPendingIntent)
+        }
         if(music.art != null){
             notification.setLargeIcon(BitmapFactory.decodeByteArray(music.art, 0, music.art!!.size))
         }
