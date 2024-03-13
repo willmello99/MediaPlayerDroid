@@ -1,6 +1,5 @@
 package classes
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import java.io.File

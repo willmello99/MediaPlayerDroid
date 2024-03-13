@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.mediaplayerdroid"
+    namespace = "app.mediaplayerdroid"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.mediaplayerdroid"
+        applicationId = "app.mediaplayerdroid"
         minSdk = 31
         targetSdk = 34
         versionCode = 7
