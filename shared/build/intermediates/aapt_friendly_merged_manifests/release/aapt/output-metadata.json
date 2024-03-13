@@ -4,7 +4,7 @@
     "type": "AAPT_FRIENDLY_MERGED_MANIFESTS",
     "kind": "Directory"
   },
-  "applicationId": "app.mediaplayerdroid.shared",
+  "applicationId": "app.mediaplayerdroid",
   "variantName": "release",
   "elements": [
     {

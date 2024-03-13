@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="app.mediaplayerdroid.shared" >
+    package="app.mediaplayerdroid" >
 
     <uses-sdk android:minSdkVersion="31" />
 
@@ -19,7 +19,7 @@
          MediaBrowser (for browsing) and MediaController (for playback control)
         -->
         <service
-            android:name="app.mediaplayerdroid.shared.MediaService"
+            android:name="app.mediaplayerdroid.MediaService"
             android:exported="true"
             android:foregroundServiceType="mediaPlayback" >
             <intent-filter>
