@@ -1,6 +1,8 @@
 package app.mediaplayerdroid
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -38,6 +40,7 @@ import classes.LastPlaylistMusic
 import classes.MainStruct
 import classes.Music
 import classes.PlaylistMusic
+import receivers.NotificationReceiver
 
 
 /**
@@ -782,9 +785,6 @@ class MediaService : MediaBrowserServiceCompat(),
         play()
 
         addRecent(mainStruct.lastPlaylistMusic!!)
-
-        val music = mainStruct.musics!![mainStruct.lastPlaylistMusic!!.idMusic]!!
-        createNotification(music)
     }
 
     override fun onError(mp: MediaPlayer, what: Int, extra: Int): Boolean {
@@ -827,6 +827,8 @@ class MediaService : MediaBrowserServiceCompat(),
                         mainStruct.logs!!.add("Não foi possível requisitar o foco de áudio ${lastMusic.fileName}")
                     }
                 }
+                val music = mainStruct.musics!![mainStruct.lastPlaylistMusic!!.idMusic]!!
+                createNotification(music)
             }
         }
     }
@@ -836,6 +838,8 @@ class MediaService : MediaBrowserServiceCompat(),
             && mainStruct.playbackState != PlaybackStateCompat.STATE_NONE){
             mediaPlayer!!.pause()
             updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
+            val music = mainStruct.musics!![mainStruct.lastPlaylistMusic!!.idMusic]!!
+            createNotification(music)
         }
     }
 
@@ -859,6 +863,8 @@ class MediaService : MediaBrowserServiceCompat(),
             mediaPlayer!!.pause()
             mediaPlayer!!.seekTo(0)
             updatePlaybackState(PlaybackStateCompat.STATE_STOPPED)
+            val music = mainStruct.musics!![mainStruct.lastPlaylistMusic!!.idMusic]!!
+            createNotification(music)
         }
     }
 
@@ -875,6 +881,11 @@ class MediaService : MediaBrowserServiceCompat(),
                 audioManager.abandonAudioFocusRequest(audioFocusRequest!!)
                 audioFocusRequest = null
             }
+        }
+        Handler(Looper.getMainLooper()).post {
+            MainStruct.getUnique().reloadFromFiles()
+
+            Toast.makeText(applicationContext, "Lista de músicas atualizadas", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -1044,7 +1055,7 @@ class MediaService : MediaBrowserServiceCompat(),
             .setShowWhen(false)
             .setStyle(androidx.media.app.NotificationCompat.MediaStyle()
                 .setMediaSession(sessionToken)
-                .setShowActionsInCompactView(0)
+                .setShowActionsInCompactView(1)
                 .setShowCancelButton(true)
                 .setCancelButtonIntent(
                     MediaButtonReceiver.buildMediaButtonPendingIntent(
@@ -1053,6 +1064,42 @@ class MediaService : MediaBrowserServiceCompat(),
                     )
                 )
             )
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU){
+
+            // Previous
+            val skipToPreviousIntent = Intent(this, NotificationReceiver::class.java).apply {
+                action = MEDIA_SKIP_TO_PREVIOUS
+                putExtra(NotificationCompat.EXTRA_NOTIFICATION_ID, NOTIFICATION_ID)
+            }
+            val skipToPreviousPendingIntent: PendingIntent =
+                PendingIntent.getBroadcast(this, 0, skipToPreviousIntent, PendingIntent.FLAG_IMMUTABLE)
+
+            // Play/Pause
+            val playPauseIntent = Intent(this, NotificationReceiver::class.java).apply {
+                action = MEDIA_PLAY_PAUSE
+                putExtra(NotificationCompat.EXTRA_NOTIFICATION_ID, NOTIFICATION_ID)
+            }
+            val playPausePendingIntent: PendingIntent =
+                PendingIntent.getBroadcast(this, 0, playPauseIntent, PendingIntent.FLAG_IMMUTABLE)
+
+            // Next
+            val skipToNextIntent = Intent(this, NotificationReceiver::class.java).apply {
+                action = MEDIA_SKIP_TO_NEXT
+                putExtra(NotificationCompat.EXTRA_NOTIFICATION_ID, NOTIFICATION_ID)
+            }
+            val skipToNextPendingIntent: PendingIntent =
+                PendingIntent.getBroadcast(this, 0, skipToNextIntent, PendingIntent.FLAG_IMMUTABLE)
+
+            val iconPlayPause = if(mainStruct.playbackState == PlaybackStateCompat.STATE_PLAYING){
+                R.drawable.notification_pause
+            }else{
+                R.drawable.notification_play
+            }
+            notification.addAction(R.drawable.notification_skip_to_previous, "Anterior", skipToPreviousPendingIntent)
+            notification.addAction(iconPlayPause, "Pausar/Reproduzir", playPausePendingIntent)
+            notification.addAction(R.drawable.notification_skip_to_next, "Próxima", skipToNextPendingIntent)
+        }
+
         if(mainStruct.mainIntent != null) {
             val mainPendingIntent = PendingIntent.getActivity(
                 this,
@@ -1082,7 +1129,7 @@ class MediaService : MediaBrowserServiceCompat(),
             metadataCompat.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, BitmapFactory.decodeByteArray(music.art, 0, music.art!!.size))
             metadataCompat.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, BitmapFactory.decodeByteArray(music.art, 0, music.art!!.size))
         }
-        updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
+        //updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
 
         session.setMetadata(metadataCompat.build())
 

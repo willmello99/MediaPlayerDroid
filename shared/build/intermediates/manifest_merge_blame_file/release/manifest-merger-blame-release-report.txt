@@ -15,7 +15,7 @@
 9-->C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:5:22-73
 10
 11    <application android:appCategory="audio" >
-11-->C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:7:5-25:19
+11-->C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:7:5-33:19
 11-->C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:7:18-45
 12        <meta-data
 12-->C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:9:9-11:59
@@ -44,6 +44,26 @@
 26-->C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:21:25-80
 27            </intent-filter>
 28        </service>
-29    </application>
-30
-31</manifest>
+29
+30        <receiver
+30-->C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:24:9-31:20
+31            android:name="receivers.NotificationReceiver"
+31-->C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:24:19-64
+32            android:exported="true" >
+32-->C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:25:13-36
+33            <intent-filter>
+33-->C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:26:13-30:29
+34                <action android:name="SKIP_TO_PREVIOUS" />
+34-->C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:27:17-58
+34-->C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:27:25-56
+35                <action android:name="PLAY_PAUSE" />
+35-->C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:28:17-52
+35-->C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:28:25-50
+36                <action android:name="SKIP_TO_NEXT" />
+36-->C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:29:17-54
+36-->C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:29:25-52
+37            </intent-filter>
+38        </receiver>
+39    </application>
+40
+41</manifest>

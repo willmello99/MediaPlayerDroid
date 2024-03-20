@@ -26,6 +26,16 @@
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
+
+        <receiver
+            android:name="receivers.NotificationReceiver"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="SKIP_TO_PREVIOUS" />
+                <action android:name="PLAY_PAUSE" />
+                <action android:name="SKIP_TO_NEXT" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

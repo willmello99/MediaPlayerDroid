@@ -15,7 +15,7 @@
         <ImageView
             android:id="@+id/ivAlbumArt"
             android:layout_width="match_parent"
-            android:layout_margin="20dp"
+            android:layout_margin="0dp"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:src="@drawable/music">
@@ -43,7 +43,7 @@
                 android:textAlignment="center"
                 android:textStyle="bold"
                 android:text="Nenhuma informação de playlist"
-                android:textSize="22dp">
+                android:textSize="22sp">
             </TextView>
         </LinearLayout>
         <LinearLayout
@@ -68,7 +68,7 @@
                 android:textAlignment="center"
                 android:textStyle="bold"
                 android:text="Nenhuma informação de título"
-                android:textSize="22dp">
+                android:textSize="22sp">
             </TextView>
         </LinearLayout>
         <LinearLayout
@@ -92,7 +92,7 @@
                 android:textColor="@color/white"
                 android:textAlignment="center"
                 android:text="Nenhuma informação de artista"
-                android:textSize="20dp">
+                android:textSize="20sp">
             </TextView>
         </LinearLayout>
         <LinearLayout
@@ -116,7 +116,7 @@
                 android:textColor="@color/white"
                 android:textAlignment="center"
                 android:text="Nenhuma informação de album"
-                android:textSize="20dp">
+                android:textSize="20sp">
             </TextView>
         </LinearLayout>
         <LinearLayout
@@ -140,7 +140,7 @@
                 android:textColor="@color/white"
                 android:textAlignment="center"
                 android:text="Nenhuma informação de gênero"
-                android:textSize="20dp">
+                android:textSize="20sp">
             </TextView>
         </LinearLayout>
 
@@ -158,15 +158,18 @@
                 android:textColor="@color/white"
                 android:textAlignment="center"
                 android:text="00:00"
-                android:textSize="15dp">
+                android:textSize="18sp">
             </TextView>
             <SeekBar
                 android:id="@+id/sbProgressMusic"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="10dp"
                 android:layout_weight="1"
                 android:thumbTint="@color/white"
-                android:progressTint="@color/white">
+                android:progressTint="@color/white"
+                android:progressDrawable="@drawable/seekbar_drawable"
+                android:splitTrack="false"
+                android:thumb="@drawable/seekbar_thumb">
 
             </SeekBar>
             <TextView
@@ -176,7 +179,7 @@
                 android:textColor="@color/white"
                 android:textAlignment="center"
                 android:text="00:00"
-                android:textSize="15dp">
+                android:textSize="18sp">
             </TextView>
         </LinearLayout>
 
@@ -187,34 +190,34 @@
             android:gravity="center">
             <ImageView
                 android:id="@+id/ivSkipPrevious"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
                 android:src="@drawable/skip_previous_45">
             </ImageView>
             <ImageView
                 android:id="@+id/ivStop"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
                 android:src="@drawable/stop_45">
             </ImageView>
             <ImageView
                 android:id="@+id/ivPlayPause"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
                 android:src="@drawable/play_45">
             </ImageView>
             <ImageView
                 android:id="@+id/ivSkipNext"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
                 android:src="@drawable/skip_next_45">
             </ImageView>
 
             <ImageView
                 android:id="@+id/ivPlaybackMode"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
                 android:layout_marginLeft="25dp"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
                 android:src="@drawable/sortaz_38">
             </ImageView>
 
