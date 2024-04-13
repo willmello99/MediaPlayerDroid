@@ -1,4 +1,4 @@
-Aplicativo reprodutor de músicas (Mp3) locais no Android desenvolvido em Kotlin (Android Studio), com integração Bluetooth e Android Auto para automóveis compatível com Android 14 e testado em Zenfone 10 + HUR (Headunit Reloaded Emulator HUR).
+Aplicativo reprodutor de músicas (Mp3) locais no Android desenvolvido em Kotlin (Android Studio), com integração Bluetooth e Android Auto para automóveis compatível com Android 12, 13 e 14 + HUR (Headunit Reloaded Emulator HUR).
 
 
 
@@ -32,4 +32,8 @@ Menu de configurações no HUR (Android Auto):
 
 Modos de reproduções disponíveis na aplicação (Android Auto):
 ![image](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/353e57a1-bc3f-4b9b-89b1-fc95e6931863)
+
+Visualização mista de google maps + reprodução da música (Android Auto):
+![image](https://github.com/willmello99/MediaPlayerDroid/assets/50001867/241c2adc-cc63-41da-8de3-4921b0ebd336)
+
 
