@@ -4,7 +4,9 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
-    <application android:appCategory="audio">
+    <application
+        android:appCategory="audio"
+        android:requestLegacyExternalStorage="true">
 
         <meta-data
             android:name="com.google.android.gms.car.application"
@@ -16,6 +18,7 @@
         <service
             android:name="app.mediaplayerdroid.MediaService"
             android:exported="true"
+            android:enabled="true"
             android:foregroundServiceType="mediaPlayback">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />

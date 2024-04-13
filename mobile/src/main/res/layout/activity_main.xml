@@ -27,12 +27,12 @@
 
             <ImageView
                 android:id="@+id/ivBackToolbar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_gravity="right"
                 android:src="@drawable/arrow_back_24"
-                android:layout_marginRight="20dp"
-                android:contentDescription="Voltar" />
+                android:layout_marginEnd="15dp"
+                android:contentDescription="@string/str_voltar" />
         </androidx.appcompat.widget.Toolbar>
 
         <FrameLayout

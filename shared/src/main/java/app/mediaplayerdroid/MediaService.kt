@@ -146,10 +146,11 @@ class MediaService : MediaBrowserServiceCompat(),
     private lateinit var notificationManager: NotificationManager
     private lateinit var notification: NotificationCompat.Builder
     private lateinit var bluetoothManager: BluetoothManager
-    private lateinit var bluetoothAdapter: BluetoothAdapter
+    private var bluetoothAdapter: BluetoothAdapter? = null
     private lateinit var handler: Handler
     private val runnableProgressUpdate = Runnable { progressUpdate() }
     private var startWithLastMusic: Boolean = false
+    private var lastState: Int = 0
 
     private val callback = object : MediaSessionCompat.Callback() {
         override fun onPlay() { play() }
@@ -168,9 +169,15 @@ class MediaService : MediaBrowserServiceCompat(),
             }
         }
 
-        override fun onPause() { pause() }
+        override fun onPause() {
+            lastState = PlaybackStateCompat.STATE_PAUSED
+            pause()
+        }
 
-        override fun onStop() { stop() }
+        override fun onStop() {
+            lastState = PlaybackStateCompat.STATE_STOPPED
+            stop()
+        }
 
         override fun onSkipToNext() { skipToNext() }
 
@@ -197,7 +204,14 @@ class MediaService : MediaBrowserServiceCompat(),
                             when (it.keyCode) {
                                 KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> playPause()
                                 KeyEvent.KEYCODE_MEDIA_PLAY -> play()
-                                KeyEvent.KEYCODE_MEDIA_PAUSE -> pause()
+                                KeyEvent.KEYCODE_MEDIA_STOP -> {
+                                    lastState = PlaybackStateCompat.STATE_STOPPED
+                                    stop()
+                                }
+                                KeyEvent.KEYCODE_MEDIA_PAUSE -> {
+                                    lastState = PlaybackStateCompat.STATE_PAUSED
+                                    pause()
+                                }
                                 KeyEvent.KEYCODE_MEDIA_NEXT -> onSkipToNext()
                                 KeyEvent.KEYCODE_MEDIA_PREVIOUS -> onSkipToPrevious()
                                 else -> {}
@@ -219,21 +233,18 @@ class MediaService : MediaBrowserServiceCompat(),
             }else{
                 intent.extras!!.get(BluetoothDevice.EXTRA_DEVICE) as BluetoothDevice
             }
-            val deviceName = if (ActivityCompat.checkSelfPermission(
+            if (ActivityCompat.checkSelfPermission(
                     context,
                     Manifest.permission.BLUETOOTH_CONNECT
-                ) != PackageManager.PERMISSION_GRANTED
+                ) == PackageManager.PERMISSION_GRANTED
             ) {
-                return
-            }else{
-                device!!.name
-            }
-            if (action == BluetoothDevice.ACTION_ACL_CONNECTED) {
-                Toast.makeText(context, "$deviceName conectado", Toast.LENGTH_LONG).show()
-            }
-            if (action == BluetoothDevice.ACTION_ACL_DISCONNECTED) {
-                Toast.makeText(context, "$deviceName desconectado", Toast.LENGTH_LONG).show()
-                pause()
+                if (action == BluetoothDevice.ACTION_ACL_CONNECTED) {
+                    Toast.makeText(applicationContext, "${device!!.name} conectado", Toast.LENGTH_LONG).show()
+                }
+                if (action == BluetoothDevice.ACTION_ACL_DISCONNECTED) {
+                    Toast.makeText(applicationContext, "${device!!.name} desconectado", Toast.LENGTH_LONG).show()
+                    pause()
+                }
             }
         }
     }
@@ -242,14 +253,13 @@ class MediaService : MediaBrowserServiceCompat(),
         super.onCreate()
 
         bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        bluetoothAdapter = bluetoothManager.adapter
-        //if (!bluetoothAdapter.isEnabled) {
-             //val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-            //startActivityForResult(enableBluetoothIntent, 1/*REQUEST_ENABLE_BT*/)
-        //}
-        val discoverDevicesIntent = IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED)
-        discoverDevicesIntent.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
-        registerReceiver(receiver, discoverDevicesIntent)
+        if(bluetoothManager.adapter != null){
+            bluetoothAdapter = bluetoothManager.adapter
+
+            val discoverDevicesIntent = IntentFilter(BluetoothDevice.ACTION_ACL_CONNECTED)
+            discoverDevicesIntent.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
+            registerReceiver(receiver, discoverDevicesIntent)
+        }
 
         session = MediaSessionCompat(this, "MediaService")
         sessionToken = session.sessionToken
@@ -280,7 +290,9 @@ class MediaService : MediaBrowserServiceCompat(),
             audioManager.abandonAudioFocusRequest(audioFocusRequest!!)
             audioFocusRequest = null
         }
-        unregisterReceiver(receiver)
+        if(bluetoothManager.adapter != null) {
+            unregisterReceiver(receiver)
+        }
         super.onDestroy()
     }
 
@@ -300,8 +312,14 @@ class MediaService : MediaBrowserServiceCompat(),
                         }
                     }
                     MEDIA_PLAY_PAUSE -> playPause()
-                    MEDIA_STOP -> stop()
-                    MEDIA_STOP_AND_RESET -> stopAndReset()
+                    MEDIA_STOP -> {
+                        lastState = PlaybackStateCompat.STATE_STOPPED
+                        stop()
+                    }
+                    MEDIA_STOP_AND_RESET -> {
+                        lastState = PlaybackStateCompat.STATE_STOPPED
+                        stopAndReset()
+                    }
                     MEDIA_SKIP_TO_NEXT -> skipToNext()
                     MEDIA_SKIP_TO_PREVIOUS -> skipToPrevious()
                     MEDIA_PLAYBACK_ISASC -> setMediaPlayback(MEDIA_PLAYBACK_ISASC)
@@ -769,7 +787,9 @@ class MediaService : MediaBrowserServiceCompat(),
 
     override fun onAudioFocusChange(focusChange: Int) {
         when (focusChange) {
-            AudioManager.AUDIOFOCUS_GAIN -> play()
+            AudioManager.AUDIOFOCUS_GAIN -> if(lastState == PlaybackStateCompat.STATE_PLAYING){
+                play()
+            }
             AudioManager.AUDIOFOCUS_LOSS,
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT,
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> pause()
@@ -819,6 +839,7 @@ class MediaService : MediaBrowserServiceCompat(),
                     AudioManager.AUDIOFOCUS_REQUEST_DELAYED -> {
                         mediaPlayer!!.start()
                         updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
+                        lastState = PlaybackStateCompat.STATE_PLAYING
 
                         progressUpdate()
                     }
@@ -847,6 +868,7 @@ class MediaService : MediaBrowserServiceCompat(),
         if(mediaPlayer != null){
             if(mainStruct.playbackState != PlaybackStateCompat.STATE_NONE) {
                 if (mediaPlayer!!.isPlaying) {
+                    lastState = PlaybackStateCompat.STATE_PAUSED
                     pause()
                 } else {
                     play()

@@ -13,7 +13,7 @@
         <item
             android:id="@+id/nav_folders"
             android:icon="@drawable/folder_24"
-            android:title="Músicas p/ pastas"/>
+            android:title="Músicas"/>
         <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/settings_24"
@@ -22,6 +22,10 @@
             android:id="@+id/nav_historic"
             android:icon="@drawable/historic_24"
             android:title="Histórico"/>
+        <item
+            android:id="@+id/nav_bluetooth"
+            android:icon="@drawable/bluetooth_24"
+            android:title="Dispositivos conectados"/>
         <item
             android:id="@+id/nav_info"
             android:icon="@drawable/info_24"

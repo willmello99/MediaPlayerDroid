@@ -196,12 +196,38 @@ class MainStruct private constructor(): Serializable {
         }
     }
 
+    private fun findFolderMusics(directory: String): String?{
+        val folders = File(directory)
+        if(folders.listFiles() != null){
+            for(folder in folders.listFiles()!!){
+                if(folder.isDirectory){
+                    if(folder.name == "Músicas"){
+                        return directory
+                    }else {
+                        val pathFounded = findFolderMusics(folder.path)
+                        if(pathFounded != null){
+                            return pathFounded
+                        }
+                    }
+                }
+            }
+        }
+
+        return null
+    }
+
     private fun loadPlaylistsFromFile(directory: String) {
         if (playlists == null) {
             playlists = LinkedHashMap()
         }
         if (playlists!!.isEmpty()) {
-            val folders = File("/storage/emulated/0/Músicas")
+            var folders = File("/storage/emulated/0/Músicas")
+            if(folders.listFiles() == null){
+                val pathFolderMusics = findFolderMusics("/storage")
+                if(pathFolderMusics != null) {
+                    folders = File("${pathFolderMusics}/Músicas")
+                }
+            }
             if (folders.listFiles() != null) {
                 var idMusic = 0
                 var idPlaylist = 0
@@ -230,10 +256,10 @@ class MainStruct private constructor(): Serializable {
                     }
                 }
                 //playlists!!.toList().sortedBy { it.second.name }
-            }
 
-            saveMusicsToFile(directory)
-            savePlaylistsToFile(directory)
+                saveMusicsToFile(directory)
+                savePlaylistsToFile(directory)
+            }
         }
     }
 

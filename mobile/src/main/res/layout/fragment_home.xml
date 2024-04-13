@@ -18,7 +18,8 @@
             android:layout_margin="0dp"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:src="@drawable/music">
+            android:src="@drawable/music"
+            android:contentDescription="@string/str_imagem_com_a_capa_do_lbum">
 
         </ImageView>
         <LinearLayout
@@ -33,7 +34,8 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/folder_28"
                 android:layout_gravity="center"
-                android:layout_marginRight="10dp">
+                android:layout_marginEnd="10dp"
+                android:contentDescription="@string/str_playlist_da_musica">
             </ImageView>
             <TextView
                 android:id="@+id/tvPlaylistName"
@@ -42,8 +44,9 @@
                 android:textColor="@color/white"
                 android:textAlignment="center"
                 android:textStyle="bold"
-                android:text="Nenhuma informação de playlist"
-                android:textSize="22sp">
+                android:text="@string/str_nenhuma_informacaoo_de_playlist"
+                android:textSize="22sp"
+                android:contentDescription="@string/str_playlist_da_musica">
             </TextView>
         </LinearLayout>
         <LinearLayout
@@ -58,7 +61,8 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/music_28"
                 android:layout_gravity="center"
-                android:layout_marginRight="10dp">
+                android:layout_marginEnd="10dp"
+                android:contentDescription="@string/str_titulo_da_musica">
             </ImageView>
             <TextView
                 android:id="@+id/tvTitle"
@@ -67,8 +71,9 @@
                 android:textColor="@color/white"
                 android:textAlignment="center"
                 android:textStyle="bold"
-                android:text="Nenhuma informação de título"
-                android:textSize="22sp">
+                android:text="@string/str_nenhuma_informacao_de_titulo"
+                android:textSize="22sp"
+                android:contentDescription="@string/str_titulo_da_musica">
             </TextView>
         </LinearLayout>
         <LinearLayout
@@ -83,7 +88,8 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/artist_24"
                 android:layout_gravity="center"
-                android:layout_marginRight="10dp">
+                android:layout_marginEnd="10dp"
+                android:contentDescription="@string/str_artista_da_musica">
             </ImageView>
             <TextView
                 android:id="@+id/tvArtist"
@@ -91,8 +97,9 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
                 android:textAlignment="center"
-                android:text="Nenhuma informação de artista"
-                android:textSize="20sp">
+                android:text="@string/str_nenhuma_informacao_de_artista"
+                android:textSize="20sp"
+                android:contentDescription="@string/str_nome_do_artista">
             </TextView>
         </LinearLayout>
         <LinearLayout
@@ -107,7 +114,8 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/album_24"
                 android:layout_gravity="center"
-                android:layout_marginRight="10dp">
+                android:layout_marginEnd="10dp"
+                android:contentDescription="@string/str_album_do_artista">
             </ImageView>
             <TextView
                 android:id="@+id/tvTitleAlbum"
@@ -115,8 +123,9 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
                 android:textAlignment="center"
-                android:text="Nenhuma informação de album"
-                android:textSize="20sp">
+                android:text="@string/str_nenhuma_informacao_de_album"
+                android:textSize="20sp"
+                android:contentDescription="@string/str_nome_do_album_da_musica_atual">
             </TextView>
         </LinearLayout>
         <LinearLayout
@@ -131,7 +140,8 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/genre_24"
                 android:layout_gravity="center"
-                android:layout_marginRight="10dp">
+                android:layout_marginEnd="10dp"
+                android:contentDescription="@string/str_genero_da_musica">
             </ImageView>
             <TextView
                 android:id="@+id/tvGenre"
@@ -139,8 +149,9 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
                 android:textAlignment="center"
-                android:text="Nenhuma informação de gênero"
-                android:textSize="20sp">
+                android:text="@string/str_nenhuma_informaco_de_genero"
+                android:textSize="20sp"
+                android:contentDescription="@string/str_genero_da_musica_atual">
             </TextView>
         </LinearLayout>
 
@@ -157,19 +168,21 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
                 android:textAlignment="center"
-                android:text="00:00"
-                android:textSize="18sp">
+                android:text="@string/str_00_00"
+                android:textSize="18sp"
+                android:contentDescription="@string/str_minuto_e_segundo_atual_da_reproducao_da_musica">
             </TextView>
             <SeekBar
                 android:id="@+id/sbProgressMusic"
                 android:layout_width="0dp"
-                android:layout_height="10dp"
+                android:layout_height="18dp"
                 android:layout_weight="1"
                 android:thumbTint="@color/white"
                 android:progressTint="@color/white"
                 android:progressDrawable="@drawable/seekbar_drawable"
                 android:splitTrack="false"
-                android:thumb="@drawable/seekbar_thumb">
+                android:thumb="@drawable/seekbar_thumb"
+                android:contentDescription="@string/str_posicao_atual_da_musica">
 
             </SeekBar>
             <TextView
@@ -178,8 +191,9 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
                 android:textAlignment="center"
-                android:text="00:00"
-                android:textSize="18sp">
+                android:text="@string/str_00_00"
+                android:textSize="18sp"
+                android:contentDescription="@string/str_minutos_e_segundos_totais_da_musica_atual">
             </TextView>
         </LinearLayout>
 
@@ -187,30 +201,35 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end|left"
-            android:gravity="center">
+            android:gravity="center"
+            tools:ignore="RtlHardcoded">
             <ImageView
                 android:id="@+id/ivSkipPrevious"
                 android:layout_width="55dp"
                 android:layout_height="55dp"
-                android:src="@drawable/skip_previous_45">
+                android:src="@drawable/skip_previous_45"
+                android:contentDescription="@string/str_reproduzir_a_musica_anterior">
             </ImageView>
             <ImageView
                 android:id="@+id/ivStop"
                 android:layout_width="55dp"
                 android:layout_height="55dp"
-                android:src="@drawable/stop_45">
+                android:src="@drawable/stop_45"
+                android:contentDescription="@string/str_parar_a_reproducao_da_musica">
             </ImageView>
             <ImageView
                 android:id="@+id/ivPlayPause"
                 android:layout_width="55dp"
                 android:layout_height="55dp"
-                android:src="@drawable/play_45">
+                android:src="@drawable/play_45"
+                android:contentDescription="@string/str_reproduzir_pausar_a_musica">
             </ImageView>
             <ImageView
                 android:id="@+id/ivSkipNext"
                 android:layout_width="55dp"
                 android:layout_height="55dp"
-                android:src="@drawable/skip_next_45">
+                android:src="@drawable/skip_next_45"
+                android:contentDescription="@string/str_avancar_para_a_proxima_musica">
             </ImageView>
 
             <ImageView
@@ -218,7 +237,8 @@
                 android:layout_width="55dp"
                 android:layout_height="55dp"
                 android:layout_marginLeft="25dp"
-                android:src="@drawable/sortaz_38">
+                android:src="@drawable/sortaz_38"
+                android:contentDescription="@string/str_modo_de_reproducao_atual">
             </ImageView>
 
         </LinearLayout>

@@ -2,13 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="app.mediaplayerdroid" >
 
-    <uses-sdk android:minSdkVersion="31" />
+    <uses-sdk android:minSdkVersion="29" />
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 
-    <application android:appCategory="audio" >
+    <application
+        android:appCategory="audio"
+        android:requestLegacyExternalStorage="true" >
         <meta-data
             android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc" />
@@ -20,6 +22,7 @@
         -->
         <service
             android:name="app.mediaplayerdroid.MediaService"
+            android:enabled="true"
             android:exported="true"
             android:foregroundServiceType="mediaPlayback" >
             <intent-filter>

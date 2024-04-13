@@ -1,7 +1,7 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:1:1-35:12
-INJECTED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:1:1-35:12
+ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:1:1-38:12
+INJECTED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:1:1-38:12
 	package
 		INJECTED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml
 	xmlns:android
@@ -19,49 +19,53 @@ ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\
 	android:name
 		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:5:22-73
 application
-ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:7:5-33:19
+ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:7:5-36:19
+	android:requestLegacyExternalStorage
+		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:9:9-52
 	android:appCategory
-		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:7:18-45
+		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:8:9-36
 meta-data#com.google.android.gms.car.application
-ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:9:9-11:59
+ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:11:9-13:59
 	android:resource
-		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:11:13-56
+		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:13:13-56
 	android:name
-		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:10:13-66
+		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:12:13-66
 service#app.mediaplayerdroid.MediaService
-ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:16:9-23:19
+ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:18:9-26:19
+	android:enabled
+		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:21:13-35
 	android:exported
-		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:18:13-36
+		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:20:13-36
 	android:foregroundServiceType
-		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:19:13-58
+		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:22:13-58
 	android:name
-		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:17:13-61
+		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:19:13-61
 intent-filter#action:name:android.media.browse.MediaBrowserService
-ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:20:13-22:29
+ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:23:13-25:29
 action#android.media.browse.MediaBrowserService
-ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:21:17-83
+ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:24:17-83
 	android:name
-		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:21:25-80
+		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:24:25-80
 receiver#receivers.NotificationReceiver
-ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:24:9-31:20
+ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:27:9-34:20
 	android:exported
-		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:25:13-36
+		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:28:13-36
 	android:name
-		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:24:19-64
+		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:27:19-64
 intent-filter#action:name:PLAY_PAUSE+action:name:SKIP_TO_NEXT+action:name:SKIP_TO_PREVIOUS
-ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:26:13-30:29
+ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:29:13-33:29
 action#SKIP_TO_PREVIOUS
-ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:27:17-58
+ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:30:17-58
 	android:name
-		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:27:25-56
+		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:30:25-56
 action#PLAY_PAUSE
-ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:28:17-52
+ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:31:17-52
 	android:name
-		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:28:25-50
+		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:31:25-50
 action#SKIP_TO_NEXT
-ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:29:17-54
+ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:32:17-54
 	android:name
-		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:29:25-52
+		ADDED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml:32:25-52
 uses-sdk
 INJECTED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from C:\Users\William\Desktop\Projects\Kotlin\MediaPlayerDroid\shared\src\main\AndroidManifest.xml
