@@ -243,6 +243,7 @@ class MediaService : MediaBrowserServiceCompat(),
                 }
                 if (action == BluetoothDevice.ACTION_ACL_DISCONNECTED) {
                     Toast.makeText(applicationContext, "${device!!.name} desconectado", Toast.LENGTH_LONG).show()
+                    lastState = PlaybackStateCompat.STATE_PAUSED
                     pause()
                 }
             }
